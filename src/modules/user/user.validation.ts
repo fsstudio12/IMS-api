@@ -2,18 +2,18 @@ import Joi from 'joi';
 import { password, objectId } from '../validate/custom.validation';
 import { NewCreatedUser } from './user.interfaces';
 
-const createUserBody: Record<keyof NewCreatedUser, any> = {
+const createUserBodySchema: Record<keyof NewCreatedUser, any> = {
   email: Joi.string().required().email(),
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
-  role: Joi.string().required().valid('user', 'admin'),
+  role: Joi.string().required().valid('employee', 'admin'),
 };
 
-export const createUser = {
-  body: Joi.object().keys(createUserBody),
+export const createUserSchema = {
+  body: Joi.object().keys(createUserBodySchema),
 };
 
-export const getUsers = {
+export const getUsersSchema = {
   query: Joi.object().keys({
     name: Joi.string(),
     role: Joi.string(),
@@ -24,13 +24,13 @@ export const getUsers = {
   }),
 };
 
-export const getUser = {
+export const getUserSchema = {
   params: Joi.object().keys({
     userId: Joi.string().custom(objectId),
   }),
 };
 
-export const updateUser = {
+export const updateUserSchema = {
   params: Joi.object().keys({
     userId: Joi.required().custom(objectId),
   }),
@@ -43,7 +43,7 @@ export const updateUser = {
     .min(1),
 };
 
-export const deleteUser = {
+export const deleteUserSchema = {
   params: Joi.object().keys({
     userId: Joi.string().custom(objectId),
   }),

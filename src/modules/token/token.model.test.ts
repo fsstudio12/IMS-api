@@ -15,7 +15,7 @@ const userOne = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
-  role: 'user',
+  role: 'employee',
   isEmailVerified: false,
 };
 

@@ -30,7 +30,7 @@ const userOne = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
-  role: 'user',
+  role: 'employee',
   isEmailVerified: false,
 };
 
@@ -59,13 +59,13 @@ describe('Auth routes', () => {
         id: expect.anything(),
         name: newUser.name,
         email: newUser.email,
-        role: 'user',
+        role: 'employee',
         isEmailVerified: false,
       });
 
       const dbUser = await User.findById(res.body.user.id);
       expect(dbUser).toBeDefined();
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'user', isEmailVerified: false });
+      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'employee', isEmailVerified: false });
 
       expect(res.body.tokens).toEqual({
         access: { token: expect.anything(), expires: expect.anything() },

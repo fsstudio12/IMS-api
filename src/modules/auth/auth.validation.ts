@@ -2,42 +2,42 @@ import Joi from 'joi';
 import { password } from '../validate/custom.validation';
 import { NewRegisteredUser } from '../user/user.interfaces';
 
-const registerBody: Record<keyof NewRegisteredUser, any> = {
+const registerBodySchema: Record<keyof NewRegisteredUser, any> = {
   email: Joi.string().required().email(),
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
 };
 
-export const register = {
-  body: Joi.object().keys(registerBody),
+export const registerSchema = {
+  body: Joi.object().keys(registerBodySchema),
 };
 
-export const login = {
+export const loginSchema = {
   body: Joi.object().keys({
     email: Joi.string().required(),
     password: Joi.string().required(),
   }),
 };
 
-export const logout = {
+export const logoutSchema = {
   body: Joi.object().keys({
     refreshToken: Joi.string().required(),
   }),
 };
 
-export const refreshTokens = {
+export const refreshTokensSchema = {
   body: Joi.object().keys({
     refreshToken: Joi.string().required(),
   }),
 };
 
-export const forgotPassword = {
+export const forgotPasswordSchema = {
   body: Joi.object().keys({
     email: Joi.string().email().required(),
   }),
 };
 
-export const resetPassword = {
+export const resetPasswordSchema = {
   query: Joi.object().keys({
     token: Joi.string().required(),
   }),
@@ -46,7 +46,7 @@ export const resetPassword = {
   }),
 };
 
-export const verifyEmail = {
+export const verifyEmailSchema = {
   query: Joi.object().keys({
     token: Joi.string().required(),
   }),

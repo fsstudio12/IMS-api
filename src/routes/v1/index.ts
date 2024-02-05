@@ -1,7 +1,8 @@
 import express, { Router } from 'express';
-import authRoute from './auth.route';
 import docsRoute from './swagger.route';
+import authRoute from './auth.route';
 import userRoute from './user.route';
+// import categoryRoute from './'
 import config from '../../config/config';
 
 const router = express.Router();

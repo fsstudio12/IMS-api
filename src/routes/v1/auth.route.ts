@@ -4,14 +4,15 @@ import { authValidation, authController, auth } from '../../modules/auth';
 
 const router: Router = express.Router();
 
-router.post('/register', validate(authValidation.register), authController.register);
-router.post('/login', validate(authValidation.login), authController.login);
-router.post('/logout', validate(authValidation.logout), authController.logout);
-router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
-router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
-router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
-router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
-router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router
+  .post('/register', validate(authValidation.registerSchema), authController.registerHandler)
+  .post('/login', validate(authValidation.loginSchema), authController.loginHandler)
+  .post('/logout', validate(authValidation.logoutSchema), authController.logoutHandler)
+  .post('/refresh-tokens', validate(authValidation.refreshTokensSchema), authController.refreshTokensHandler)
+  .post('/forgot-password', validate(authValidation.forgotPasswordSchema), authController.forgotPasswordHandler)
+  .post('/reset-password', validate(authValidation.resetPasswordSchema), authController.resetPasswordHandler)
+  .post('/send-verification-email', auth(), authController.sendVerificationEmailHandler)
+  .post('/verify-email', validate(authValidation.verifyEmailSchema), authController.verifyEmailHandler);
 
 export default router;
 

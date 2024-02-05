@@ -7,14 +7,14 @@ const router: Router = express.Router();
 
 router
   .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+  .post(auth('manageUsers'), validate(userValidation.createUserSchema), userController.createUserHandler)
+  .get(validate(userValidation.getUsersSchema), userController.getUsersHandler);
 
 router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+  .get(auth('getUsers'), validate(userValidation.getUserSchema), userController.getUserHandler)
+  .patch(auth('manageUsers'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
+  .delete(auth('manageUsers'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
 
 export default router;
 
@@ -64,7 +64,7 @@ export default router;
  *               name: fake name
  *               email: fake@example.com
  *               password: password1
- *               role: user
+ *               role: employee
  *     responses:
  *       "201":
  *         description: Created

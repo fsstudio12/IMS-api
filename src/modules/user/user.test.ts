@@ -24,7 +24,7 @@ const userOne = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
-  role: 'user',
+  role: 'employee',
   isEmailVerified: false,
 };
 
@@ -33,7 +33,7 @@ const userTwo = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
-  role: 'user',
+  role: 'employee',
   isEmailVerified: false,
 };
 
@@ -62,7 +62,7 @@ describe('User routes', () => {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
-        role: 'user',
+        role: 'employee',
       };
     });
 
@@ -258,7 +258,7 @@ describe('User routes', () => {
       const res = await request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ role: 'user' })
+        .query({ role: 'employee' })
         .send()
         .expect(httpStatus.OK);
 
@@ -546,7 +546,7 @@ describe('User routes', () => {
         id: userOne._id.toHexString(),
         name: updateBody.name,
         email: updateBody.email,
-        role: 'user',
+        role: 'employee',
         isEmailVerified: false,
       });
 
@@ -554,7 +554,7 @@ describe('User routes', () => {
       expect(dbUser).toBeDefined();
       if (!dbUser) return;
       expect(dbUser.password).not.toBe(updateBody.password);
-      expect(dbUser).toMatchObject({ name: updateBody.name, email: updateBody.email, role: 'user' });
+      expect(dbUser).toMatchObject({ name: updateBody.name, email: updateBody.email, role: 'employee' });
     });
 
     test('should return 401 error if access token is missing', async () => {
