@@ -5,24 +5,25 @@ import { catchAsync, pick } from '../utils';
 import { IOptions } from '../paginate/paginate';
 import * as categoryService from './category.service';
 import { ApiError } from '../errors';
+import createSuccessResponse from '../success/SuccessResponse';
 
 export const createCategoryHandler = catchAsync(async (req: Request, res: Response) => {
   const category = await categoryService.createCategory(req.body);
-  res.status(httpStatus.CREATED).send(category);
+  res.status(httpStatus.CREATED).send(createSuccessResponse(category));
 });
 
 export const getCategoriesHandler = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   const results = await categoryService.queryCategories(filter, options);
-  res.send(results);
+  res.send(createSuccessResponse(results));
 });
 
 export const getCategoryHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['categoryId'] === 'string') {
     const category = await categoryService.getCategoryById(new mongoose.Types.ObjectId(req.params['categoryId']));
     if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
-    res.send(category);
+    res.send(createSuccessResponse(category));
   }
 });
 
@@ -32,8 +33,7 @@ export const updateCategoryHandler = catchAsync(async (req: Request, res: Respon
       new mongoose.Types.ObjectId(req.params['categoryId']),
       req.body
     );
-
-    res.send(category);
+    res.send(createSuccessResponse(category));
   }
 });
 

@@ -7,14 +7,14 @@ const router: Router = express.Router();
 
 router
   .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUserSchema), userController.createUserHandler)
-  .get(validate(userValidation.getUsersSchema), userController.getUsersHandler);
+  .post(auth('manageEmployees'), validate(userValidation.createUserSchema), userController.createUserHandler)
+  .get(auth('getEmployees'), validate(userValidation.getUsersSchema), userController.getUsersHandler);
 
 router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUserSchema), userController.getUserHandler)
-  .patch(auth('manageUsers'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
+  .get(auth('getEmployees'), validate(userValidation.getUserSchema), userController.getUserHandler)
+  .patch(auth('manageEmployees'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
+  .delete(auth('manageEmployees'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
 
 export default router;
 

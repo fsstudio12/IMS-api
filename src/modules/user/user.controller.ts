@@ -5,18 +5,18 @@ import { catchAsync, pick } from '../utils';
 import ApiError from '../errors/ApiError';
 import { IOptions } from '../paginate/paginate';
 import * as userService from './user.service';
+import createSuccessResponse from '../success/SuccessResponse';
 
 export const createUserHandler = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.createUser(req.body);
-  res.status(httpStatus.CREATED).send(user);
+  res.status(httpStatus.CREATED).send(createSuccessResponse(user));
 });
 
 export const getUsersHandler = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'role']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   const result = await userService.queryUsers(filter, options);
-  console.log(result);
-  res.send(result);
+  res.send(createSuccessResponse(result));
 });
 
 export const getUserHandler = catchAsync(async (req: Request, res: Response) => {
@@ -25,14 +25,14 @@ export const getUserHandler = catchAsync(async (req: Request, res: Response) => 
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
-    res.send(user);
+    res.send(createSuccessResponse(user));
   }
 });
 
 export const updateUserHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['userId'] === 'string') {
     const user = await userService.updateUserById(new mongoose.Types.ObjectId(req.params['userId']), req.body);
-    res.send(user);
+    res.send(createSuccessResponse(user));
   }
 });
 
