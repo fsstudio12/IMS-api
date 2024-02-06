@@ -1,9 +1,12 @@
 import express, { Router } from 'express';
-import docsRoute from './swagger.route';
-import authRoute from './auth.route';
-import userRoute from './user.route';
-// import categoryRoute from './'
 import config from '../../config/config';
+
+import docsRoute from './swagger.route';
+
+import authRoute from './auth.route';
+
+import categoryRoute from './category.route';
+import userRoute from './user.route';
 
 const router = express.Router();
 
@@ -20,6 +23,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/users',
     route: userRoute,
+  },
+  {
+    path: '/categories',
+    route: categoryRoute,
   },
 ];
 

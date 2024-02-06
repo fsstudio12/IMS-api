@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import moment, { Moment } from 'moment';
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import config from '../../config/config';
 import Token from './token.model';
@@ -47,15 +47,24 @@ export const saveToken = async (
   userId: mongoose.Types.ObjectId,
   expires: Moment,
   type: string,
-  blacklisted: boolean = false
+  blacklisted: boolean = false,
+  session: ClientSession | null = null
 ): Promise<ITokenDoc> => {
-  const tokenDoc = await Token.create({
-    token,
-    user: userId,
-    expires: expires.toDate(),
-    type,
-    blacklisted,
-  });
+  const options = session ? { session } : undefined;
+
+  const [tokenDoc] = await Token.create(
+    [
+      {
+        token,
+        user: userId,
+        expires: expires.toDate(),
+        type,
+        blacklisted,
+      },
+    ],
+    options
+  );
+  if (!tokenDoc) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong.');
   return tokenDoc;
 };
 
@@ -112,14 +121,14 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
  * @param {string} email
  * @returns {Promise<string>}
  */
-export const generateResetPasswordToken = async (email: string): Promise<string> => {
+export const generateResetPasswordToken = async (email: string, session: ClientSession | null = null): Promise<string> => {
   const user = await userService.getUserByEmail(email);
   if (!user) {
     throw new ApiError(httpStatus.NO_CONTENT, '');
   }
   const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);
-  await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD);
+  await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD, false, session);
   return resetPasswordToken;
 };
 
@@ -128,9 +137,9 @@ export const generateResetPasswordToken = async (email: string): Promise<string>
  * @param {IUserDoc} user
  * @returns {Promise<string>}
  */
-export const generateVerifyEmailToken = async (user: IUserDoc): Promise<string> => {
+export const generateVerifyEmailToken = async (user: IUserDoc, session: ClientSession | null = null): Promise<string> => {
   const expires = moment().add(config.jwt.verifyEmailExpirationMinutes, 'minutes');
   const verifyEmailToken = generateToken(user.id, expires, tokenTypes.VERIFY_EMAIL);
-  await saveToken(verifyEmailToken, user.id, expires, tokenTypes.VERIFY_EMAIL);
+  await saveToken(verifyEmailToken, user.id, expires, tokenTypes.VERIFY_EMAIL, false, session);
   return verifyEmailToken;
 };

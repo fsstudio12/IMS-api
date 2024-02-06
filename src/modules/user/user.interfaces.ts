@@ -3,6 +3,7 @@ import { QueryResult } from '../paginate/paginate';
 import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 export interface IUser {
+  businessId: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
@@ -21,9 +22,9 @@ export interface IUserModel extends Model<IUserDoc> {
 
 export type UpdateUserBody = Partial<IUser>;
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
+export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'businessId'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'>;
+export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'businessId'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;

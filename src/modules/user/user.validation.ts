@@ -4,7 +4,8 @@ import { NewCreatedUser } from './user.interfaces';
 
 const createUserBodySchema: Record<keyof NewCreatedUser, any> = {
   email: Joi.string().required().email(),
-  password: Joi.string().required().custom(password),
+  // password: Joi.string().required().custom(password),
+  password: Joi.string().required(),
   name: Joi.string().required(),
   role: Joi.string().required().valid('employee', 'admin'),
 };

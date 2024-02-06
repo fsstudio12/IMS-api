@@ -1,3 +1,4 @@
+import { ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
@@ -8,10 +9,16 @@ import { userService } from '../user';
 import * as authService from './auth.service';
 import { emailService } from '../email';
 import createSuccessResponse from '../success/SuccessResponse';
+import { businessService } from '../business';
+import runInTransaction from '../utils/transactionWrapper';
+import { ApiError } from '../errors';
 
 export const registerHandler = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.registerUser(req.body);
-  res.status(httpStatus.CREATED).send({ user });
+  await runInTransaction(async (session: ClientSession) => {
+    const business = await businessService.createBusiness(req.body, session);
+    const user = await userService.registerUser({ ...req.body, businessId: business._id }, session);
+    res.status(httpStatus.CREATED).send({ user });
+  });
 });
 
 export const loginHandler = catchAsync(async (req: Request, res: Response) => {
@@ -32,11 +39,14 @@ export const refreshTokensHandler = catchAsync(async (req: Request, res: Respons
 });
 
 export const forgotPasswordHandler = catchAsync(async (req: Request, res: Response) => {
-  const resetPasswordToken = await tokenService.generateResetPasswordToken(req.body.email);
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
-  res
-    .status(config.env === 'development' ? httpStatus.OK : httpStatus.NO_CONTENT)
-    .send(createSuccessResponse(config.env === 'development' && { resetPasswordToken }));
+  await runInTransaction(async (session: ClientSession) => {
+    const [resetPasswordToken] = await tokenService.generateResetPasswordToken(req.body.email, session);
+    if (!resetPasswordToken) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong.');
+    await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
+    res
+      .status(config.env === 'development' ? httpStatus.OK : httpStatus.NO_CONTENT)
+      .send(createSuccessResponse(config.env === 'development' && { resetPasswordToken }));
+  });
 });
 
 export const resetPasswordHandler = catchAsync(async (req: Request, res: Response) => {
@@ -45,15 +55,18 @@ export const resetPasswordHandler = catchAsync(async (req: Request, res: Respons
 });
 
 export const sendVerificationEmailHandler = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.user);
   if (!req.user.isEmailVerified) {
-    const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user);
-    await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name);
-    res
-      .status(config.env === 'development' ? httpStatus.OK : httpStatus.NO_CONTENT)
-      .send(createSuccessResponse(config.env === 'development' && { verifyEmailToken }));
+    await runInTransaction(async (session: ClientSession) => {
+      const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user, session);
+      await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name);
+
+      res
+        .status(config.env === 'development' ? httpStatus.OK : httpStatus.NO_CONTENT)
+        .send(createSuccessResponse(config.env === 'development' && { verifyEmailToken }));
+    });
+  } else {
+    res.status(httpStatus.OK).send(createSuccessResponse(null, 'Your email is already verified.'));
   }
-  res.status(httpStatus.OK).send(createSuccessResponse(null, 'Your email is already verified.'));
 });
 
 export const verifyEmailHandler = catchAsync(async (req: Request, res: Response) => {

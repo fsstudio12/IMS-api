@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
@@ -22,11 +22,13 @@ export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> =>
  * @param {NewRegisteredUser} userBody
  * @returns {Promise<IUserDoc>}
  */
-export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDoc> => {
+export const registerUser = async (userBody: NewRegisteredUser, session: ClientSession): Promise<IUserDoc> => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create({ ...userBody, role: 'admin' });
+  const [user] = await User.create([{ ...userBody, role: 'admin' }], { session });
+  if (!user) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
+  return user;
 };
 
 /**
