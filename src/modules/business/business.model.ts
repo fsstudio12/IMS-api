@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import { IBusinessDoc, IBusinessModel } from './business.interfaces';
+import { toJSON } from '../toJSON';
+import { paginate } from '../paginate';
 
 const businessSchema = new mongoose.Schema<IBusinessDoc, IBusinessModel>(
   {
@@ -35,6 +37,9 @@ businessSchema.static('isNameTaken', async function (name: string, excludeBusine
   const business = await this.findOne({ name, _id: { $ne: excludeBusinessId } });
   return !!business;
 });
+
+businessSchema.plugin(toJSON);
+businessSchema.plugin(paginate);
 
 const Business = mongoose.model<IBusinessDoc, IBusinessModel>('Business', businessSchema);
 

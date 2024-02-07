@@ -4,7 +4,7 @@ import config from '../../config/config';
 import docsRoute from './swagger.route';
 
 import authRoute from './auth.route';
-
+import businessRoute from './business.route';
 import categoryRoute from './category.route';
 import userRoute from './user.route';
 
@@ -19,6 +19,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/auth',
     route: authRoute,
+  },
+  {
+    path: '/businesses',
+    route: businessRoute,
   },
   {
     path: '/users',

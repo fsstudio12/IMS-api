@@ -14,7 +14,7 @@ const verifyCallback: VerifyCallback =
     }
     req.user = user;
 
-    if (requiredRights.length) {
+    if (user.role !== 'super_admin' && requiredRights.length) {
       const userRights = roleRights.get(user.role);
       if (!userRights) return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
       const hasRequiredRights = requiredRights.every((requiredRight: string) => userRights.includes(requiredRight));

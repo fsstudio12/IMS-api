@@ -7,14 +7,16 @@ const router: Router = express.Router();
 
 router
   .route('/')
-  .post(auth('manageEmployees'), validate(userValidation.createUserSchema), userController.createUserHandler)
-  .get(auth('getEmployees'), validate(userValidation.getUsersSchema), userController.getUsersHandler);
+  .get(auth('getOwnEmployees'), validate(userValidation.getUsersSchema), userController.getUsersHandler)
+  .post(auth('manageOwnEmployees'), validate(userValidation.createUserSchema), userController.createUserHandler);
 
 router
   .route('/:userId')
-  .get(auth('getEmployees'), validate(userValidation.getUserSchema), userController.getUserHandler)
-  .patch(auth('manageEmployees'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
-  .delete(auth('manageEmployees'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
+  .get(auth('getOwnEmployees'), validate(userValidation.getUserSchema), userController.getUserHandler)
+  .patch(auth('manageOwnEmployees'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
+  .delete(auth('manageOwnEmployees'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
+
+// router.route('/own/all').get(auth('getOwnEmployees'), userController.getUsersHandler);
 
 export default router;
 

@@ -3,6 +3,7 @@ import { QueryResult } from '../paginate/paginate';
 
 export interface ICategory {
   name: string;
+  businessId: mongoose.Types.ObjectId;
 }
 
 export interface ICategoryDoc extends ICategory, Document {}
@@ -14,4 +15,4 @@ export interface ICategoryModel extends Model<ICategoryDoc> {
 
 export type UpdateCategoryBody = Partial<ICategory>;
 
-export type NewCreatedCategory = ICategory;
+export type NewCreatedCategory = Omit<ICategory, 'businessId'>;

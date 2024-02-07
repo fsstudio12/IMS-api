@@ -11,9 +11,8 @@ import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './u
  * @returns {Promise<IUserDoc>}
  */
 export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> => {
-  if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  }
+  if (await User.isEmailTaken(userBody.email)) throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+
   return User.create(userBody);
 };
 
@@ -23,9 +22,8 @@ export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> =>
  * @returns {Promise<IUserDoc>}
  */
 export const registerUser = async (userBody: NewRegisteredUser, session: ClientSession): Promise<IUserDoc> => {
-  if (await User.isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  }
+  if (await User.isEmailTaken(userBody.email)) throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+
   const [user] = await User.create([{ ...userBody, role: 'admin' }], { session });
   if (!user) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong');
   return user;
@@ -67,12 +65,11 @@ export const updateUserById = async (
   updateBody: UpdateUserBody
 ): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
-  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
+  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId)))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-  }
+
   Object.assign(user, updateBody);
   await user.save();
   return user;
@@ -85,9 +82,38 @@ export const updateUserById = async (
  */
 export const deleteUserById = async (userId: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
   const user = await getUserById(userId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+
   await user.deleteOne();
   return user;
+};
+
+export const getUsers = async (user: IUserDoc): Promise<IUserDoc[] | []> => {
+  let matchQuery: any = {};
+  if (user.role !== 'super_admin') {
+    matchQuery = {
+      businessId: user.businessId,
+    };
+    if (user.role !== 'admin') {
+      matchQuery = { ...matchQuery, role: { $ne: 'admin' } };
+    }
+  }
+
+  const employees = await User.aggregate([
+    {
+      $match: matchQuery,
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+        role: 1,
+        isEmailVerified: 1,
+        createdAt: 1,
+      },
+    },
+  ]);
+
+  return employees;
 };

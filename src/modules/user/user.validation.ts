@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { password, objectId } from '../validate/custom.validation';
+import { objectId } from '../validate/custom.validation';
 import { NewCreatedUser } from './user.interfaces';
 
 const createUserBodySchema: Record<keyof NewCreatedUser, any> = {
@@ -38,7 +38,8 @@ export const updateUserSchema = {
   body: Joi.object()
     .keys({
       email: Joi.string().email(),
-      password: Joi.string().custom(password),
+      // password: Joi.string().custom(password),
+      password: Joi.string(),
       name: Joi.string(),
     })
     .min(1),

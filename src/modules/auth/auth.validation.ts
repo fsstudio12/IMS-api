@@ -1,10 +1,11 @@
 import Joi from 'joi';
-import { password } from '../validate/custom.validation';
+// import { password } from '../validate/custom.validation';
 import { NewRegisteredUser } from '../user/user.interfaces';
 
 const registerBodySchema: Record<keyof NewRegisteredUser, any> = {
   email: Joi.string().required().email(),
-  password: Joi.string().required().custom(password),
+  // password: Joi.string().required().custom(password),
+  password: Joi.string().required(),
   name: Joi.string().required(),
 };
 
@@ -42,7 +43,8 @@ export const resetPasswordSchema = {
     token: Joi.string().required(),
   }),
   body: Joi.object().keys({
-    password: Joi.string().required().custom(password),
+    // password: Joi.string().required().custom(password),
+    password: Joi.string().required(),
   }),
 };
 
