@@ -8,7 +8,6 @@ import * as userService from './user.service';
 import createSuccessResponse from '../success/SuccessResponse';
 
 export const createUserHandler = catchAsync(async (req: Request, res: Response) => {
-  // console.log('req user', req.user);
   const user = await userService.createUser({ ...req.body, businessId: req.user.businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ user }));
 });

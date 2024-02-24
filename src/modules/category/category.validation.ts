@@ -1,8 +1,8 @@
 import Joi from 'joi';
-import { NewCreatedCategory } from './category.interfaces';
+import { NewCategory } from './category.interfaces';
 import { objectId } from '../validate';
 
-const createCategoryBodySchema: Record<keyof NewCreatedCategory, any> = {
+const createCategoryBodySchema: Record<keyof NewCategory, any> = {
   name: Joi.string().required(),
 };
 

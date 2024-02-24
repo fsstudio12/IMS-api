@@ -15,4 +15,4 @@ export interface ICategoryModel extends Model<ICategoryDoc> {
 
 export type UpdateCategoryBody = Partial<ICategory>;
 
-export type NewCreatedCategory = Omit<ICategory, 'businessId'>;
+export type NewCategory = Omit<ICategory, 'businessId'>;

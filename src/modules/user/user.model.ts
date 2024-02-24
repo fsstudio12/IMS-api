@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
     businessId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Business',

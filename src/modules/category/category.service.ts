@@ -2,16 +2,16 @@ import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import Category from './category.model';
-import { ICategoryDoc, NewCreatedCategory, UpdateCategoryBody } from './category.interfaces';
+import { ICategoryDoc, NewCategory, UpdateCategoryBody } from './category.interfaces';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { IUserDoc } from '../user/user.interfaces';
 
 /**
  * Create a category
- * @param {NewCreatedCategory} categoryBody
+ * @param {NewCategory} categoryBody
  * @returns {Promise<ICategoryDoc>}
  */
-export const createCategory = async (categoryBody: NewCreatedCategory): Promise<ICategoryDoc> => {
+export const createCategory = async (categoryBody: NewCategory): Promise<ICategoryDoc> => {
   if (await Category.isNameTaken(categoryBody.name)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Category with the entered name already exists.');
   }

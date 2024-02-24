@@ -16,4 +16,4 @@ export interface IBusinessModel extends Model<IBusinessDoc> {
 
 export type UpdateBusinessBody = Partial<IBusiness>;
 
-export type NewCreatedBusiness = IBusiness;
+export type NewBusiness = IBusiness;

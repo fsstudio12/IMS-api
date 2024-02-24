@@ -1,15 +1,12 @@
 import mongoose, { ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
-import { IBusinessDoc, NewCreatedBusiness, UpdateBusinessBody } from './business.interfaces';
+import { IBusinessDoc, NewBusiness, UpdateBusinessBody } from './business.interfaces';
 import Business from './business.model';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { User } from '../user';
 
-export const createBusiness = async (
-  businessBody: NewCreatedBusiness,
-  session: ClientSession | null
-): Promise<IBusinessDoc> => {
+export const createBusiness = async (businessBody: NewBusiness, session: ClientSession | null): Promise<IBusinessDoc> => {
   if (await Business.isNameTaken(businessBody.name))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Business with the entered name already exists.');
 

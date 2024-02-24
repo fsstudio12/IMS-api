@@ -4,6 +4,7 @@ import { IItemDoc, IItemModel } from './item.interfaces';
 
 const combinationItemSchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId },
+  name: { type: String },
   quantity: { type: Number },
   quantityMetric: { type: String, enum: QuantityMetric, default: QuantityMetric.GRAM },
   price: { type: Number },
@@ -11,6 +12,10 @@ const combinationItemSchema = new mongoose.Schema({
 
 const itemSchema = new mongoose.Schema<IItemDoc, IItemModel>(
   {
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Business',
+    },
     name: { type: String, required: true },
     quantity: { type: Number },
     quantityMetric: { type: String, enum: QuantityMetric, default: QuantityMetric.GRAM },

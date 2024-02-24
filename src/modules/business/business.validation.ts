@@ -1,8 +1,8 @@
 import Joi from 'joi';
-import { NewCreatedBusiness } from './business.interfaces';
+import { NewBusiness } from './business.interfaces';
 import { objectId } from '../validate';
 
-const createBusinessBodySchema: Record<keyof NewCreatedBusiness, any> = {
+const createBusinessBodySchema: Record<keyof NewBusiness, any> = {
   name: Joi.string().required(),
   email: Joi.string().required().email(),
 };
