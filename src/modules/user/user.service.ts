@@ -1,9 +1,9 @@
 import httpStatus from 'http-status';
-import mongoose, { ClientSession } from 'mongoose';
+import mongoose, { ClientSession, FilterQuery } from 'mongoose';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { NewCreatedUser, UpdateUserBody, IUserDoc, NewRegisteredUser } from './user.interfaces';
+import { NewCreatedUser, UpdateUser, IUserDoc, NewRegisteredUser } from './user.interfaces';
 
 /**
  * Create a user
@@ -45,26 +45,23 @@ export const queryUsers = async (filter: Record<string, any>, options: IOptions)
  * @param {mongoose.Types.ObjectId} id
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => User.findById(id);
+export const findUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc | null> => User.findById(id);
 
 /**
  * Get user by email
  * @param {string} email
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserByEmail = async (email: string): Promise<IUserDoc | null> => User.findOne({ email });
+export const findUserByEmail = async (email: string): Promise<IUserDoc | null> => User.findOne({ email });
 
 /**
  * Update user by id
  * @param {mongoose.Types.ObjectId} userId
- * @param {UpdateUserBody} updateBody
+ * @param {UpdateUser} updateBody
  * @returns {Promise<IUserDoc | null>}
  */
-export const updateUserById = async (
-  userId: mongoose.Types.ObjectId,
-  updateBody: UpdateUserBody
-): Promise<IUserDoc | null> => {
-  const user = await getUserById(userId);
+export const updateUserById = async (userId: mongoose.Types.ObjectId, updateBody: UpdateUser): Promise<IUserDoc | null> => {
+  const user = await findUserById(userId);
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId)))
@@ -81,33 +78,24 @@ export const updateUserById = async (
  * @returns {Promise<IUserDoc | null>}
  */
 export const deleteUserById = async (userId: mongoose.Types.ObjectId): Promise<IUserDoc | null> => {
-  const user = await getUserById(userId);
+  const user = await findUserById(userId);
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 
   await user.deleteOne();
   return user;
 };
 
-export const getUsers = async (user: IUserDoc): Promise<IUserDoc[] | []> => {
-  let matchQuery: any = {};
-  if (user.role !== 'super_admin') {
-    matchQuery = {
-      businessId: user.businessId,
-    };
-    if (user.role !== 'admin') {
-      matchQuery = { ...matchQuery, role: { $ne: 'admin' } };
-    }
-  }
-
-  const employees = await User.aggregate([
+export const getUsersByFilterQuery = async (filterQuery: FilterQuery<IUserDoc>): Promise<IUserDoc[]> =>
+  User.aggregate([
     {
-      $match: matchQuery,
+      $match: filterQuery,
     },
     {
       $project: {
         _id: 1,
         name: 1,
         email: 1,
+        phone: 1,
         role: 1,
         isEmailVerified: 1,
         createdAt: 1,
@@ -115,5 +103,17 @@ export const getUsers = async (user: IUserDoc): Promise<IUserDoc[] | []> => {
     },
   ]);
 
+export const getUsersByRole = async (user: IUserDoc): Promise<IUserDoc[]> => {
+  let filterQuery: FilterQuery<IUserDoc> = {};
+  if (user.role !== 'super_admin') {
+    filterQuery = {
+      businessId: user.businessId,
+    };
+    if (user.role !== 'admin') {
+      filterQuery = { ...filterQuery, role: { $ne: 'admin' } };
+    }
+  }
+
+  const employees = await getUsersByFilterQuery(filterQuery);
   return employees;
 };

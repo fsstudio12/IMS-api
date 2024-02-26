@@ -1,7 +1,7 @@
 import mongoose, { ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
-import { IBusinessDoc, NewBusiness, UpdateBusinessBody } from './business.interfaces';
+import { IBusinessDoc, NewBusiness, UpdateBusiness } from './business.interfaces';
 import Business from './business.model';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { User } from '../user';
@@ -32,7 +32,7 @@ export const getBusinessByEmail = async (email: string): Promise<IBusinessDoc | 
 
 export const updateBusinessById = async (
   businessId: mongoose.Types.ObjectId,
-  updateBody: UpdateBusinessBody
+  updateBody: UpdateBusiness
 ): Promise<IBusinessDoc | null> => {
   const business = await getBusinessById(businessId);
   if (!business) throw new ApiError(httpStatus.NOT_FOUND, 'Business not found.');

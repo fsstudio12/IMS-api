@@ -28,6 +28,7 @@
       },
       "rules": {
         "no-console": "off",
+        "no-restricted-syntax": ["off", "ForInStatement", "LabeledStatement", "WithStatement"],
         "func-names": "off",
         "no-underscore-dangle": "off",
         "consistent-return": "off"

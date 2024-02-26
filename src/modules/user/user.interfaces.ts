@@ -6,6 +6,7 @@ export interface IUser {
   businessId: mongoose.Types.ObjectId;
   name: string;
   email: string;
+  phone: string;
   password: string;
   role: string;
   isEmailVerified: boolean;
@@ -22,11 +23,11 @@ export interface IUserModel extends Model<IUserDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 
-export type UpdateUserBody = Partial<IUser>;
+export type UpdateUser = Partial<IUser>;
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'businessId'>;
+export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified' | 'isVerified' | 'isBanned' | 'businessId'>;
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'businessId'>;
+export type NewCreatedUser = Omit<IUser, 'isEmailVerified' | 'isVerified' | 'isBanned' | 'businessId'>;
 
 export interface IUserWithTokens {
   user: IUserDoc;

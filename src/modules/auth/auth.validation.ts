@@ -3,10 +3,11 @@ import Joi from 'joi';
 import { NewRegisteredUser } from '../user/user.interfaces';
 
 const registerBodySchema: Record<keyof NewRegisteredUser, any> = {
+  name: Joi.string().required(),
   email: Joi.string().required().email(),
+  phone: Joi.string().optional(),
   // password: Joi.string().required().custom(password),
   password: Joi.string().required(),
-  name: Joi.string().required(),
 };
 
 export const registerSchema = {

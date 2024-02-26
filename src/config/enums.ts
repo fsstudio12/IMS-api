@@ -15,6 +15,6 @@ export enum Role {
 }
 
 export enum RegistrationType {
-  PAN = 'pan',
-  VAT = 'vat',
+  PAN = 'PAN',
+  VAT = 'VAT',
 }

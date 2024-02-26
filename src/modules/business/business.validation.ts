@@ -5,6 +5,7 @@ import { objectId } from '../validate';
 const createBusinessBodySchema: Record<keyof NewBusiness, any> = {
   name: Joi.string().required(),
   email: Joi.string().required().email(),
+  phone: Joi.string().optional(),
 };
 
 export const createBusinessSchema = {

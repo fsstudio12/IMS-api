@@ -6,10 +6,8 @@ import { IOptions } from '../paginate/paginate';
 
 import * as businessService from './business.service';
 import createSuccessResponse from '../success/SuccessResponse';
-// import runInTransaction from '../utils/transactionWrapper';
 import { ApiError } from '../errors';
 import runInTransaction from '../utils/transactionWrapper';
-// import { userService } from '../user';
 
 export const getBusinessesHandler = catchAsync(async (req: Request, res: Response) => {
   const filter = pick(req.query, ['name', 'email']);

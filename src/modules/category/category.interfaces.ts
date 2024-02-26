@@ -13,6 +13,6 @@ export interface ICategoryModel extends Model<ICategoryDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 
-export type UpdateCategoryBody = Partial<ICategory>;
+export type UpdateCategory = Partial<ICategory>;
 
 export type NewCategory = Omit<ICategory, 'businessId'>;

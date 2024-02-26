@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import Category from './category.model';
-import { ICategoryDoc, NewCategory, UpdateCategoryBody } from './category.interfaces';
+import { ICategoryDoc, NewCategory, UpdateCategory } from './category.interfaces';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { IUserDoc } from '../user/user.interfaces';
 
@@ -28,13 +28,13 @@ export const getCategoryById = async (id: mongoose.Types.ObjectId): Promise<ICat
 export const updateCategoryById = async (
   categoryId: mongoose.Types.ObjectId,
   user: IUserDoc,
-  updateBody: UpdateCategoryBody
+  updateBody: UpdateCategory
 ): Promise<ICategoryDoc | null> => {
   const category = await getCategoryById(categoryId);
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
   if (user.role !== 'super_admin' && user.businessId.toString() !== category.businessId.toString())
-    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only edit your own categories.');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   Object.assign(category, updateBody);
   await category.save();
@@ -49,7 +49,7 @@ export const deleteCategoryById = async (
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
   if (user.role !== 'super_admin' && user.businessId.toString() !== category.businessId.toString())
-    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only edit your own categories.');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   await category.deleteOne();
   return category;

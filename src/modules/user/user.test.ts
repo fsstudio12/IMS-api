@@ -60,6 +60,7 @@ describe('User routes', () => {
     beforeEach(() => {
       newUser = {
         name: faker.name.findName(),
+        phone: '9812345678',
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'employee',

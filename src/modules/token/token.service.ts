@@ -13,6 +13,15 @@ import { userService } from '../user';
 /**
  * Generate token
  * @param {mongoose.Types.ObjectId} userId
+ * @param {string} type
+ * @returns {Promise<ITokenDoc>}
+ */
+export const findToken = async (userId: mongoose.Types.ObjectId, type: string): Promise<ITokenDoc | null> =>
+  Token.findOne({ user: userId, type });
+
+/**
+ * Generate token
+ * @param {mongoose.Types.ObjectId} userId
  * @param {Moment} expires
  * @param {string} type
  * @param {string} [secret]
@@ -102,6 +111,10 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
 
   const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
   const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
+
+  const dbRefreshToken = await findToken(user.id, tokenTypes.REFRESH);
+  if (dbRefreshToken) await dbRefreshToken.deleteOne();
+
   await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
 
   return {
@@ -122,7 +135,7 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
  * @returns {Promise<string>}
  */
 export const generateResetPasswordToken = async (email: string, session: ClientSession | null = null): Promise<string> => {
-  const user = await userService.getUserByEmail(email);
+  const user = await userService.findUserByEmail(email);
   if (!user) {
     throw new ApiError(httpStatus.NO_CONTENT, '');
   }

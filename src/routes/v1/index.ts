@@ -3,10 +3,14 @@ import config from '../../config/config';
 
 import docsRoute from './swagger.route';
 
+import adminRoute from './admin.route';
 import authRoute from './auth.route';
 import businessRoute from './business.route';
 import categoryRoute from './category.route';
+import itemRoute from './item.route';
+import recipeRoute from './recipe.route';
 import userRoute from './user.route';
+import vendorRoute from './vendor.route';
 
 const router = express.Router();
 
@@ -17,6 +21,10 @@ interface IRoute {
 
 const defaultIRoute: IRoute[] = [
   {
+    path: '/admin',
+    route: adminRoute,
+  },
+  {
     path: '/auth',
     route: authRoute,
   },
@@ -25,12 +33,24 @@ const defaultIRoute: IRoute[] = [
     route: businessRoute,
   },
   {
+    path: '/categories',
+    route: categoryRoute,
+  },
+  {
+    path: '/items',
+    route: itemRoute,
+  },
+  {
+    path: '/recipes',
+    route: recipeRoute,
+  },
+  {
     path: '/users',
     route: userRoute,
   },
   {
-    path: '/categories',
-    route: categoryRoute,
+    path: '/vendors',
+    route: vendorRoute,
   },
 ];
 

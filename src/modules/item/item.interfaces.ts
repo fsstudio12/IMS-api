@@ -1,12 +1,12 @@
 import mongoose, { Document, Model } from 'mongoose';
-import { QuantityMetric } from 'src/config/enums';
+import { QuantityMetric } from '../../config/enums';
 import { QueryResult } from '../paginate/paginate';
 
-export interface ICombinationItem extends Document {
-  name: string;
+export interface ICombinationItem {
+  _id: mongoose.Types.ObjectId;
   quantity: number;
   quantityMetric: QuantityMetric;
-  price: number;
+  [Symbol.iterator](): Iterator<[string, any]>;
 }
 
 export interface IITem {
@@ -27,6 +27,6 @@ export interface IItemModel extends Model<IItemDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 
-export type UpdateItemBody = Partial<IITem>;
+export type UpdateItem = Partial<IITem>;
 
 export type NewItem = IITem;

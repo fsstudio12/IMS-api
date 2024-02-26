@@ -4,6 +4,7 @@ import { QueryResult } from '../paginate/paginate';
 export interface IBusiness {
   name: string;
   email: string;
+  phone: string;
 }
 
 export interface IBusinessDoc extends IBusiness, Document {}
@@ -14,6 +15,6 @@ export interface IBusinessModel extends Model<IBusinessDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 
-export type UpdateBusinessBody = Partial<IBusiness>;
+export type UpdateBusiness = Partial<IBusiness>;
 
 export type NewBusiness = IBusiness;

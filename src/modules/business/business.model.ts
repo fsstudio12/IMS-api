@@ -19,6 +19,9 @@ const businessSchema = new mongoose.Schema<IBusinessDoc, IBusinessModel>(
         }
       },
     },
+    phone: {
+      type: String,
+    },
   },
   {
     timestamps: true,

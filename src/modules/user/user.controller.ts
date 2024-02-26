@@ -17,16 +17,12 @@ export const getUsersHandler = catchAsync(async (req: Request, res: Response) =>
   // const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   // const result = await userService.queryUsers(filter, options);
   // res.send(createSuccessResponse(result));
-  res.send(createSuccessResponse({ employees: await userService.getUsers(req.user) }));
+  res.send(createSuccessResponse({ employees: await userService.getUsersByRole(req.user) }));
 });
-
-// export const getUsersHandler = catchAsync(async (req: Request, res: Response) => {
-//   console.log('req.user', req.user);
-// });
 
 export const getUserHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['userId'] === 'string') {
-    const user = await userService.getUserById(new mongoose.Types.ObjectId(req.params['userId']));
+    const user = await userService.findUserById(new mongoose.Types.ObjectId(req.params['userId']));
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 
     res.send(createSuccessResponse({ user }));
