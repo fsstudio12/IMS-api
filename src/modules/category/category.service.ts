@@ -5,6 +5,7 @@ import Category from './category.model';
 import { ICategoryDoc, NewCategory, UpdateCategory } from './category.interfaces';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import { IUserDoc } from '../user/user.interfaces';
+import { stringifyObjectId } from '../utils/common';
 
 /**
  * Create a category
@@ -33,7 +34,7 @@ export const updateCategoryById = async (
   const category = await getCategoryById(categoryId);
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
-  if (user.role !== 'super_admin' && user.businessId.toString() !== category.businessId.toString())
+  if (user.role !== 'super_admin' && stringifyObjectId(user.businessId) !== stringifyObjectId(category.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   Object.assign(category, updateBody);
@@ -48,7 +49,7 @@ export const deleteCategoryById = async (
   const category = await getCategoryById(categoryId);
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
-  if (user.role !== 'super_admin' && user.businessId.toString() !== category.businessId.toString())
+  if (user.role !== 'super_admin' && stringifyObjectId(user.businessId) !== stringifyObjectId(category.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   await category.deleteOne();

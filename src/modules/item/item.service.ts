@@ -4,7 +4,8 @@ import { ApiError } from '../errors';
 import { ICombinationItem, IItemDoc, NewItem, UpdateItem } from './item.interfaces';
 import Item from './item.model';
 import runInTransaction from '../utils/transactionWrapper';
-import splitFromQuery from '../utils/common';
+import { splitFromQuery, stringifyObjectId } from '../utils/common';
+import { IPurchaseItem } from '../purchase/purchase.interfaces';
 
 export const getItemsWithMatchQuery = async (matchQuery: FilterQuery<IItemDoc>): Promise<IItemDoc[]> => {
   return Item.aggregate([
@@ -32,28 +33,30 @@ export const findItemByIdAndBusinessId = async (
   return findItemByFilterQuery({ _id, businessId });
 };
 
-export const sanitizeCombinationParams = async (combinationItems: ICombinationItem[]): Promise<ICombinationItem[]> => {
-  const combinationItemIds = combinationItems.map((combinationItem: ICombinationItem) => combinationItem._id);
-  const dbCombinationItems = await findItemsByFilterQuery({
+export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseItem>(
+  items: T[],
+  useInputItemPrice: boolean = false
+): Promise<T[]> => {
+  const itemIds = items.map((item: T) => item._id);
+  const dbItems = await findItemsByFilterQuery({
     _id: {
-      $in: combinationItemIds,
+      $in: itemIds,
     },
   });
 
-  const dbCombinationItemsMap = new Map();
-  for (const dbCombinationItem of dbCombinationItems) {
-    if (!dbCombinationItemsMap.has(dbCombinationItem._id.toString())) {
-      dbCombinationItemsMap.set(dbCombinationItem._id.toString(), dbCombinationItem);
+  const dbItemsMap: Map<string, IItemDoc> = new Map();
+  for (const dbItem of dbItems) {
+    if (!dbItemsMap.has(stringifyObjectId(dbItem._id))) {
+      dbItemsMap.set(stringifyObjectId(dbItem._id), dbItem);
     }
   }
 
-  return combinationItems.map((combinationItem: ICombinationItem) => {
-    const correspondingCombinationItem = dbCombinationItemsMap.get(combinationItem._id);
-    if (!correspondingCombinationItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
+  return items.map((item: T) => {
+    const correspondingItem = dbItemsMap.get(stringifyObjectId(item._id));
+    if (!correspondingItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
     return {
-      ...combinationItem,
-      price: correspondingCombinationItem.price,
-      name: correspondingCombinationItem.name,
+      ...item,
+      price: useInputItemPrice ? (item as IPurchaseItem).price : correspondingItem.price,
     };
   });
 };
@@ -71,7 +74,7 @@ export const createItem = async (itemBody: NewItem): Promise<IItemDoc> => {
     if (!copiedItemCreateBody.combinationItems || copiedItemCreateBody.combinationItems.length <= 0)
       throw new ApiError(httpStatus.BAD_REQUEST, 'No combination items provided.');
 
-    copiedCombinationItems = await sanitizeCombinationParams(itemBody.combinationItems);
+    copiedCombinationItems = await sanitizeItemParams(itemBody.combinationItems);
   }
 
   copiedItemCreateBody.combinationItems = copiedCombinationItems;
@@ -85,7 +88,7 @@ export const updateItemById = async (itemId: mongoose.Types.ObjectId, itemBody: 
 
   if (await Item.isNameTaken(itemBody.name!, itemBody.businessId!, itemId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item with the entered name already exists.');
-  if (itemBody.businessId!.toString() !== item.businessId.toString())
+  if (stringifyObjectId(itemBody.businessId!) !== stringifyObjectId(item.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own items.');
 
   const copiedItemUpdateBody = { ...itemBody };
@@ -94,7 +97,7 @@ export const updateItemById = async (itemId: mongoose.Types.ObjectId, itemBody: 
     if (!copiedItemUpdateBody.combinationItems || copiedItemUpdateBody.combinationItems.length <= 0)
       throw new ApiError(httpStatus.BAD_REQUEST, 'No combination items provided.');
 
-    copiedItemUpdateBody.combinationItems = await sanitizeCombinationParams(itemBody.combinationItems!);
+    copiedItemUpdateBody.combinationItems = await sanitizeItemParams(itemBody.combinationItems!);
   }
 
   Object.assign(item, copiedItemUpdateBody);
@@ -124,7 +127,7 @@ export const deleteItemsById = async (queryItemIds: string, businessId?: mongoos
     await Promise.all(
       dbCombinedItems.map(async (dbItem) => {
         for (const [index, combinationItem] of Object.entries(dbItem.combinationItems)) {
-          if (itemIds.includes(combinationItem._id.toString())) {
+          if (itemIds.includes(stringifyObjectId(combinationItem._id))) {
             console.log(parseInt(index, 10));
             dbItem.combinationItems.splice(parseInt(index, 10), 1);
           }

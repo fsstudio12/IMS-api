@@ -8,8 +8,8 @@ export const getItemSchema = {
   }),
 };
 
-export const requestCombinationItemSchema: any = {
-  _id: Joi.optional().custom(objectId),
+export const requestCombinationItemSchema = {
+  _id: Joi.custom(objectId).required(),
   quantity: Joi.number().required(),
   quantityMetric: Joi.string().required(),
 };

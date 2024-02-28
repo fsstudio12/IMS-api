@@ -2,11 +2,13 @@ import mongoose from 'mongoose';
 import { QuantityMetric } from '../../config/enums';
 import { IItemDoc, IItemModel } from './item.interfaces';
 
-export const combinationItemSchema = new mongoose.Schema({
+export const combinationItem = {
   _id: { type: mongoose.Schema.Types.ObjectId },
   quantity: { type: Number },
   quantityMetric: { type: String, enum: QuantityMetric, default: QuantityMetric.GRAM },
-});
+};
+
+export const combinationItemSchema = new mongoose.Schema(combinationItem);
 
 const itemSchema = new mongoose.Schema<IItemDoc, IItemModel>(
   {

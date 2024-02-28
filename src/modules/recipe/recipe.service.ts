@@ -4,8 +4,8 @@ import { ApiError } from '../errors';
 import { IRecipeDoc, NewRecipe, UpdateRecipe } from './recipe.interfaces';
 import Recipe from './recipe.model';
 import runInTransaction from '../utils/transactionWrapper';
-import { sanitizeCombinationParams } from '../item/item.service';
-import splitFromQuery from '../utils/common';
+import { sanitizeItemParams } from '../item/item.service';
+import { splitFromQuery, stringifyObjectId } from '../utils/common';
 
 export const getRecipesWithMatchQuery = async (matchQuery: FilterQuery<IRecipeDoc>): Promise<IRecipeDoc[]> => {
   return Recipe.aggregate([
@@ -41,7 +41,7 @@ export const createRecipe = async (recipeBody: NewRecipe): Promise<IRecipeDoc> =
 
   const copiedRecipeCreateBody = { ...recipeBody };
 
-  copiedRecipeCreateBody.combinationItems = await sanitizeCombinationParams(recipeBody.combinationItems);
+  copiedRecipeCreateBody.combinationItems = await sanitizeItemParams(recipeBody.combinationItems);
 
   return Recipe.create(copiedRecipeCreateBody);
 };
@@ -55,12 +55,12 @@ export const updateRecipeById = async (
 
   if (await Recipe.isNameTaken(updateBody.name!, updateBody.businessId!, recipeId))
     throw new ApiError(httpStatus.NOT_FOUND, 'Recipe with the entered name already exists.');
-  if (updateBody.businessId!.toString() !== recipe.businessId.toString())
+  if (stringifyObjectId(updateBody.businessId!) !== stringifyObjectId(recipe.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own recipes.');
 
   const copiedRecipeUpdateBody = { ...updateBody };
 
-  copiedRecipeUpdateBody.combinationItems = await sanitizeCombinationParams(updateBody.combinationItems!);
+  copiedRecipeUpdateBody.combinationItems = await sanitizeItemParams(updateBody.combinationItems!);
 
   Object.assign(recipe, copiedRecipeUpdateBody);
   await recipe.save();
@@ -91,7 +91,7 @@ export const deleteRecipesById = async (queryRecipeIds: string, businessId?: mon
     await Promise.all(
       updateRecipes.map(async (dbRecipe) => {
         for (const [index, combinationItem] of Object.entries(dbRecipe.combinationItems)) {
-          if (recipeIds.includes(combinationItem._id.toString())) {
+          if (recipeIds.includes(stringifyObjectId(combinationItem._id))) {
             console.log(parseInt(index, 10));
             dbRecipe.combinationItems.splice(parseInt(index, 10), 1);
           }

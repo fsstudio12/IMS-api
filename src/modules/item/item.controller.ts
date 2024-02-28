@@ -12,7 +12,6 @@ export const createItemHandler = catchAsync(async (req: Request, res: Response) 
   const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
   if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
 
-  console.log('create item');
   const item = await itemService.createItem({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ item }));
 });

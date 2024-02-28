@@ -6,7 +6,7 @@ export interface ICombinationItem {
   _id: mongoose.Types.ObjectId;
   quantity: number;
   quantityMetric: QuantityMetric;
-  [Symbol.iterator](): Iterator<[string, any]>;
+  // [Symbol.iterator](): Iterator<[string, any]>;
 }
 
 export interface IITem {

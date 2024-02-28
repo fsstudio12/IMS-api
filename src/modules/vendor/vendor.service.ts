@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import { IVendorDoc, NewVendor, UpdateVendor } from './vendor.interfaces';
 import Vendor from './vendor.model';
 import { ApiError } from '../errors';
-import splitFromQuery from '../utils/common';
+import { splitFromQuery, stringifyObjectId } from '../utils/common';
 
 export const findVendorsByFilterQuery = async (filterQuery: FilterQuery<IVendorDoc>): Promise<IVendorDoc[]> =>
   Vendor.find(filterQuery);
@@ -28,7 +28,7 @@ export const updateVendorById = async (vendorId: mongoose.Types.ObjectId, vendor
 
   if (await Vendor.isNameTaken(vendorBody.name!, vendorBody.businessId!, vendorId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Vendor with the entered name already exists.');
-  if (vendorBody.businessId!.toString() !== vendor.businessId.toString())
+  if (stringifyObjectId(vendorBody.businessId!) !== stringifyObjectId(vendor.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own vendor.');
 
   Object.assign(vendor, vendorBody);
