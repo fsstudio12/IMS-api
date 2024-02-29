@@ -25,6 +25,7 @@ export const loginHandler = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
+  console.log('🚀 ~ loginHandler ~ tokens:', tokens);
   res.send(createSuccessResponse({ user, tokens }, 'Successfully logged in.'));
 });
 

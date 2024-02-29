@@ -4,6 +4,7 @@ import { IItemDoc, IItemModel } from './item.interfaces';
 
 export const combinationItem = {
   _id: { type: mongoose.Schema.Types.ObjectId },
+  name: { type: String },
   quantity: { type: Number },
   quantityMetric: { type: String, enum: QuantityMetric, default: QuantityMetric.GRAM },
 };

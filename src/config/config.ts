@@ -46,6 +46,12 @@ const envVarsSchema = Joi.object()
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     CLIENT_URL: Joi.string().required().description('Client url'),
+    AWS_ACCESS_KEY_ID: Joi.string().description('aws key id'),
+    AWS_SECRET_ACCESS_KEY: Joi.string().description('aws secret access key'),
+    AWS_USER_REGION: Joi.string().description('aws user region'),
+    AWS_BUCKET_BASE_URL: Joi.string().description('aws base url'),
+    AWS_BUCKET_IMS: Joi.string().description('aws bucket for IMS'),
+    AWS_CUSTOMERS_FOLDER: Joi.string().description('bucket folder for customers'),
   })
   .unknown();
 
@@ -90,6 +96,14 @@ const config = {
     from: envVars.EMAIL_FROM,
   },
   clientUrl: envVars.CLIENT_URL,
+  aws: {
+    accessKeyId: envVars.AWS_ACCESS_KEY_ID,
+    secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY,
+    userRegion: envVars.AWS_USER_REGION,
+    bucketBaseUrl: envVars.AWS_BUCKET_BASE_URL,
+    bucket: envVars.AWS_BUCKET_IMS,
+    customersFolder: envVars.AWS_CUSTOMERS_FOLDER,
+  },
 };
 
 export default config;

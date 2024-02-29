@@ -1,7 +1,7 @@
 import mongoose, { ClientSession, FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
-import { ICombinationItem, IItemDoc, NewItem, UpdateItem } from './item.interfaces';
+import { ICombinationItem, IItemDoc, ItemTableList, NewItem, UpdateItem } from './item.interfaces';
 import Item from './item.model';
 import runInTransaction from '../utils/transactionWrapper';
 import { splitFromQuery, stringifyObjectId } from '../utils/common';
@@ -56,16 +56,25 @@ export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseI
     if (!correspondingItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
     return {
       ...item,
+      name: correspondingItem.name,
       price: useInputItemPrice ? (item as IPurchaseItem).price : correspondingItem.price,
     };
   });
 };
 
-export const createItem = async (itemBody: NewItem): Promise<IItemDoc> => {
-  if (await Item.isNameTaken(itemBody.name, itemBody.businessId)) {
+const validationForCreateItem = async (itemBody: NewItem): Promise<void> => {
+  if (await Item.isNameTaken(itemBody.name, itemBody.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item with the entered name already exists.');
-  }
 
+  if (itemBody.isSellable && !itemBody.price)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
+
+  if (!itemBody.isSellable && itemBody.price)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Item cannot have price if it is not sellable.');
+};
+
+export const createItem = async (itemBody: NewItem): Promise<IItemDoc> => {
+  await validationForCreateItem(itemBody);
   const copiedItemCreateBody = { ...itemBody };
 
   let copiedCombinationItems: ICombinationItem[] = [];
@@ -82,14 +91,30 @@ export const createItem = async (itemBody: NewItem): Promise<IItemDoc> => {
   return Item.create(copiedItemCreateBody);
 };
 
-export const updateItemById = async (itemId: mongoose.Types.ObjectId, itemBody: UpdateItem): Promise<IItemDoc | null> => {
-  const item = await findItemById(itemId);
-  if (!item) throw new ApiError(httpStatus.NOT_FOUND, 'Item not found.');
+export const validationForUpdateItemById = async (
+  itemId: mongoose.Types.ObjectId,
+  itemBody: UpdateItem
+): Promise<IItemDoc> => {
+  if (itemBody.isSellable && !itemBody.price)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
+
+  if (!itemBody.isSellable && itemBody.price)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Item cannot have price if it is not sellable.');
 
   if (await Item.isNameTaken(itemBody.name!, itemBody.businessId!, itemId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item with the entered name already exists.');
+
+  const item = await findItemById(itemId);
+  if (!item) throw new ApiError(httpStatus.NOT_FOUND, 'Item not found.');
+
   if (stringifyObjectId(itemBody.businessId!) !== stringifyObjectId(item.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own items.');
+
+  return item;
+};
+
+export const updateItemById = async (itemId: mongoose.Types.ObjectId, itemBody: UpdateItem): Promise<IItemDoc | null> => {
+  const item = await validationForUpdateItemById(itemId, itemBody);
 
   const copiedItemUpdateBody = { ...itemBody };
 
@@ -137,4 +162,112 @@ export const deleteItemsById = async (queryItemIds: string, businessId?: mongoos
     );
     await Item.deleteMany(matchQuery).session(session);
   });
+};
+
+export const getItemTableListHandler = async (businessId: mongoose.Types.ObjectId): Promise<ItemTableList[]> => {
+  return Item.aggregate([
+    {
+      $match: {
+        businessId,
+      },
+    },
+    {
+      $addFields: {
+        foodCost: 123,
+        average: 130,
+        combination: {
+          $cond: [
+            {
+              $eq: ['$isCombination', true],
+            },
+            {
+              $map: {
+                input: '$combinationItems',
+                as: 'ci',
+                in: '$$ci.name',
+              },
+            },
+            null,
+          ],
+        },
+      },
+    },
+    {
+      $unwind: {
+        path: '$combinationItems',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'items',
+        localField: 'combinationItems._id',
+        foreignField: '_id',
+        as: 'ci',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              isCombination: 1,
+            },
+          },
+        ],
+      },
+    },
+
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: [
+            '$$ROOT',
+            {
+              combinationItems: {
+                $cond: [
+                  '$ci._id',
+                  {
+                    _id: '$combinationItems._id',
+                    name: '$combinationItems.name',
+                    quantity: '$combinationItems.quantity',
+                    quantityMetric: '$combinationItems.quantityMetric',
+                    // isCombination: { $first: '$ci.isCombination' },
+                  },
+                  '$$REMOVE',
+                ],
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id',
+        name: { $first: '$name' },
+        quantity: { $first: '$quantity' },
+        quantityMetric: { $first: '$quantityMetric' },
+        combination: { $first: '$combination' },
+        foodCost: { $first: '$foodCost' },
+        average: { $first: '$average' },
+        isSellable: { $first: '$isSellable' },
+        isCombination: { $first: '$isCombination' },
+        price: { $first: '$price' },
+        combinationItems: {
+          $push: {
+            $cond: ['$combinationItems._id', '$combinationItems', '$$REMOVE'],
+          },
+        },
+        createdAt: { $first: '$createdAt' },
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        createdAt: 0,
+      },
+    },
+  ]);
 };

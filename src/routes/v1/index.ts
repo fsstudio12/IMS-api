@@ -7,6 +7,7 @@ import adminRoute from './admin.route';
 import authRoute from './auth.route';
 import businessRoute from './business.route';
 import categoryRoute from './category.route';
+import customerRoute from './customer.route';
 import itemRoute from './item.route';
 import purchaseRoute from './purchase.route';
 import recipeRoute from './recipe.route';
@@ -36,6 +37,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/categories',
     route: categoryRoute,
+  },
+  {
+    path: '/customers',
+    route: customerRoute,
   },
   {
     path: '/items',

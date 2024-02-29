@@ -16,4 +16,6 @@ router
   .patch(auth(), validate(itemValidation.updateItemSchema), itemController.updateItemHandler)
   .delete(auth(), validate(itemValidation.deleteItemSchema), itemController.deleteItemHandler);
 
+router.route('/table/list').get(auth(), itemController.itemTableListHandler);
+
 export default router;

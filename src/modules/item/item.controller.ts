@@ -52,3 +52,12 @@ export const deleteItemHandler = catchAsync(async (req: Request, res: Response) 
     res.send(createSuccessResponse());
   }
 });
+
+export const itemTableListHandler = catchAsync(async (req: Request, res: Response) => {
+  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
+  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+
+  const tableListItems = await itemService.getItemTableListHandler(businessId);
+
+  res.send(createSuccessResponse({ items: tableListItems }));
+});

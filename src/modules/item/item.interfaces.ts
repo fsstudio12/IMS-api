@@ -4,6 +4,7 @@ import { QueryResult } from '../paginate/paginate';
 
 export interface ICombinationItem {
   _id: mongoose.Types.ObjectId;
+  name?: string;
   quantity: number;
   quantityMetric: QuantityMetric;
   // [Symbol.iterator](): Iterator<[string, any]>;
@@ -30,3 +31,17 @@ export interface IItemModel extends Model<IItemDoc> {
 export type UpdateItem = Partial<IITem>;
 
 export type NewItem = IITem;
+
+export type ItemTableList = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  quantity: number;
+  quantityMetric: QuantityMetric;
+  combination: string[];
+  foodCost: number;
+  average: number;
+  isSellable: boolean;
+  isCombination: boolean;
+  price: number | null;
+  combinationItems: ICombinationItem[];
+};

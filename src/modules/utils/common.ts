@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { SortType } from '../../config/enums';
+import { randomUUID } from 'crypto';
 
 export const parseToInteger = (value: string): number => parseInt(value, 10);
 
@@ -75,4 +76,21 @@ export const getAddRemoveEditArrays = (newArray: object[], oldArray: object[]): 
     removeEntities,
     editEntities,
   };
+};
+
+export const getImageUploadParams = (base64String: string, folderName: string | undefined = 'test') => {
+  const format = base64String.substring(base64String.indexOf('data:') + 5, base64String.indexOf(';base64'));
+  const fileExtension = format.split('/')[1];
+
+  const buf = Buffer.from(base64String.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+
+  const params = {
+    Bucket: 'testing-acl-disabled',
+    Key: folderName + '/' + Date.now().toString() + '-' + `${randomUUID()}.${fileExtension}`,
+    Body: buf,
+    ContentType: format,
+    // ACL: 'public-read',
+  };
+
+  return params;
 };

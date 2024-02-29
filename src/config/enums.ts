@@ -14,6 +14,11 @@ export enum Role {
   EMPLOYEE = 'employee',
 }
 
+export enum CustomerType {
+  INDIVIDUAL = 'individual',
+  ORGANIZATION = 'organization',
+}
+
 export enum RegistrationType {
   PAN = 'PAN',
   VAT = 'VAT',

@@ -31,7 +31,16 @@
         "no-restricted-syntax": ["off", "ForInStatement", "LabeledStatement", "WithStatement"],
         "func-names": "off",
         "no-underscore-dangle": "off",
-        "consistent-return": "off"
+        "consistent-return": "off",
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": false,
+            "o ptionalDependencies": false,
+            "peerDependencies": false,
+            "packageDir": "./"
+          }
+        ]
       }
     }
   ]

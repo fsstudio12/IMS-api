@@ -42,6 +42,7 @@ if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
 }
 
+app.get('/', () => console.log('wadu'));
 app.use('/v1', routes);
 
 app.use((_req, _res, next) => {

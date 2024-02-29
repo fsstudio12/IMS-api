@@ -308,6 +308,7 @@ export const addPurchasePayment = async (
 
   const payment: IPayment = {
     ...paymentBody,
+    method: paymentBody?.method ?? PaymentMethod.CASH,
     _id: new mongoose.Types.ObjectId(),
   };
 
@@ -330,7 +331,7 @@ export const updatePurchasePayment = async (
   const payment: IPayment | null = findObjectFromArrayByField(purchase.paymentInfo.payments, paymentId, '_id');
   if (!payment) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase Payment not found.');
 
-  Object.assign(payment, paymentBody);
+  Object.assign(payment, { ...paymentBody, method: paymentBody?.method ?? PaymentMethod.CASH });
 
   const updatedPaymentInfo = updatePaymentInfo(purchase.paymentInfo.payments, purchase.items);
   purchase.paymentInfo = updatedPaymentInfo;

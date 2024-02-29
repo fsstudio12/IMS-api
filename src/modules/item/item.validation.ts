@@ -25,6 +25,17 @@ const createItemBodySchema: Record<keyof NewItem, any> = {
   combinationItems: Joi.array().items(Joi.object().keys(requestCombinationItemSchema)).optional(),
 };
 
+const updateItemBodySchema: Record<keyof NewItem, any> = {
+  businessId: Joi.optional().custom(objectId),
+  name: Joi.string().optional(),
+  quantity: Joi.number().optional(),
+  quantityMetric: Joi.string().optional(),
+  price: Joi.number().optional(),
+  isSellable: Joi.boolean().optional(),
+  isCombination: Joi.boolean().optional(),
+  combinationItems: Joi.array().items(Joi.object().keys(requestCombinationItemSchema)).optional(),
+};
+
 export const createItemSchema = {
   body: Joi.object().keys(createItemBodySchema),
 };
@@ -33,7 +44,7 @@ export const updateItemSchema = {
   params: Joi.object().keys({
     itemId: Joi.string().custom(objectId),
   }),
-  body: Joi.object().keys(createItemBodySchema),
+  body: Joi.object().keys(updateItemBodySchema),
 };
 
 export const deleteItemSchema = {

@@ -5,6 +5,7 @@ import { combinationItem } from '../item/item.model';
 
 export const paymentSchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId },
+  name: { type: String },
   amount: { type: Number },
   method: { type: String, enum: [...Object.values(PaymentMethod), null], default: null },
   date: { type: Date },
