@@ -4,10 +4,11 @@ import httpStatus from 'http-status';
 import { ICustomerDoc, NewCustomer, UpdateCustomer } from './customer.interfaces';
 import Customer from './customer.model';
 import { ApiError } from '../errors';
-import { getImageUploadParams, splitFromQuery, stringifyObjectId } from '../utils/common';
+import { mapFromArrayByField, splitFromQuery, stringifyObjectId } from '../utils/common';
 import { CustomerType } from '../../config/enums';
-import { uploadToBucket } from '../utils/s3Operations';
+import { deleteObjectsFromBucket } from '../utils/s3Operations';
 import config from '../../config/config';
+import { getMultipleFileDeleteParams, gets3FileUrl } from '../utils/fileOperations';
 
 export const findCustomersByFilterQuery = async (filterQuery: FilterQuery<ICustomerDoc>): Promise<ICustomerDoc[]> =>
   Customer.find(filterQuery);
@@ -26,19 +27,15 @@ export const createCustomer = async (customerBody: NewCustomer): Promise<ICustom
   if (customerBody.type === CustomerType.INDIVIDUAL && (customerBody.registrationType || customerBody.registrationNumber))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Customer of Individual type cannot have registration number and type.');
 
-  // if image
+  const sanitizedCustomerBody = { ...customerBody };
   if (customerBody.image) {
-    const uploadParams = getImageUploadParams(customerBody.image);
-    await uploadToBucket(uploadParams);
-    customerBody.image = config.aws.bucketBaseUrl + uploadParams.Key;
+    const imageUrl = await gets3FileUrl(null, sanitizedCustomerBody.image, config.aws.customersFolder);
+    sanitizedCustomerBody.image = imageUrl;
   }
 
-  const updatedCustomerBody = {
-    ...customerBody,
-    registrationType: customerBody?.registrationType ? customerBody?.registrationType : null,
-  };
+  sanitizedCustomerBody.registrationType = customerBody?.registrationType ? customerBody?.registrationType : null;
 
-  return Customer.create(updatedCustomerBody);
+  return Customer.create(sanitizedCustomerBody);
 };
 
 export const updateCustomerById = async (
@@ -53,23 +50,37 @@ export const updateCustomerById = async (
   if (stringifyObjectId(customerBody.businessId!) !== stringifyObjectId(customer.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own customer.');
 
-  // if image
+  const sanitizedCustomerBody = { ...customerBody };
+  if (sanitizedCustomerBody.image) {
+    sanitizedCustomerBody.image = await gets3FileUrl(
+      customer.image,
+      sanitizedCustomerBody.image,
+      config.aws.customersFolder
+    );
+  }
 
-  Object.assign(customer, customerBody);
+  sanitizedCustomerBody.registrationType = customerBody?.registrationType ? customerBody?.registrationType : null;
+
+  Object.assign(customer, sanitizedCustomerBody);
   await customer.save();
   return customer;
 };
 
-export const deleteCustomerById = async (queryCustomerIds: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
+export const deleteCustomersById = async (queryCustomerIds: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
   const customerIds = splitFromQuery(queryCustomerIds).map((customerId: string) => new mongoose.Types.ObjectId(customerId));
 
-  const matchQuery: FilterQuery<ICustomerDoc> = {
+  const filterQuery: FilterQuery<ICustomerDoc> = {
     _id: { $in: customerIds },
   };
 
   if (businessId) {
-    matchQuery.businessId = businessId;
+    filterQuery.businessId = businessId;
   }
 
-  await Customer.deleteMany(matchQuery);
+  const customers = await findCustomersByFilterQuery(filterQuery);
+  const imageUrls = mapFromArrayByField(customers, 'image');
+  const deleteParams = getMultipleFileDeleteParams(imageUrls);
+  await deleteObjectsFromBucket(deleteParams);
+
+  await Customer.deleteMany(filterQuery);
 };

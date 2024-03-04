@@ -5,7 +5,7 @@ import ApiError from '../errors/ApiError';
 import tokenTypes from '../token/token.types';
 import { findUserByEmail, findUserById, updateUserById } from '../user/user.service';
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces';
-import { generateAuthTokens, verifyToken } from '../token/token.service';
+import { generateAccessToken, verifyToken } from '../token/token.service';
 
 /**
  * Login with username and password
@@ -50,10 +50,11 @@ export const refreshAuth = async (refreshToken: string): Promise<IUserWithTokens
     if (!user) {
       throw new Error();
     }
-    await refreshTokenDoc.deleteOne();
-    const tokens = await generateAuthTokens(user);
+    // await refreshTokenDoc.deleteOne();
+    const tokens = await generateAccessToken(user);
     return { user, tokens };
   } catch (error) {
+    console.log('🚀 ~ refreshAuth ~ error:', error);
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
   }
 };

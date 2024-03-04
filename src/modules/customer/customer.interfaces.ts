@@ -14,7 +14,7 @@ export interface ICustomer {
   name: string;
   email: string;
   phone: string;
-  image: string;
+  image: string | null;
   type: CustomerType;
   registrationType: RegistrationType | null;
   registrationNumber: string;

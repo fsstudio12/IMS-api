@@ -19,8 +19,7 @@ export const createItemHandler = catchAsync(async (req: Request, res: Response) 
 export const getItemsHandler = catchAsync(async (req: Request, res: Response) => {
   const { businessId } = req.user;
 
-  const items = await itemService.getItemsByBusinessId(businessId);
-
+  const items = await itemService.getItemTableListHandler(businessId);
   res.send(createSuccessResponse({ items }));
 });
 

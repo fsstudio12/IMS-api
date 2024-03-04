@@ -19,13 +19,6 @@ export const customerBodySchema: Record<keyof NewCustomer, any> = {
   type: Joi.string()
     .valid(...Object.values(CustomerType))
     .required(),
-  // registrationType: Joi.string().when('type', {
-  //   is: CustomerType.INDIVIDUAL,
-  //   then: Joi.string().allow('').optional(),
-  //   otherwise: Joi.string()
-  //     .valid(...Object.values(RegistrationType))
-  //     .required(),
-  // }),
   registrationType: Joi.string().valid(RegistrationType.PAN, RegistrationType.VAT, null, ''),
   registrationNumber: Joi.string().allow('').optional(),
   address: Joi.object().keys(addressBodySchema).optional(),

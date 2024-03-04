@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import config from '../../config/config';
 
 const s3Client = new S3Client({
@@ -9,6 +9,10 @@ const s3Client = new S3Client({
   },
 });
 
-export const uploadToBucket = async (params: any) => await s3Client.send(new PutObjectCommand(params));
+export const getObjectFromBucket = async (params: any) => s3Client.send(new GetObjectCommand(params));
 
-export const deleteFromBucket = async (params: any) => await s3Client.send(new DeleteObjectCommand(params));
+export const uploadObjectToBucket = async (params: any) => s3Client.send(new PutObjectCommand(params));
+
+export const deleteObjectFromBucket = async (params: any) => s3Client.send(new DeleteObjectCommand(params));
+
+export const deleteObjectsFromBucket = async (params: any) => s3Client.send(new DeleteObjectsCommand(params));

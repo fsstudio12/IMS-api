@@ -129,6 +129,25 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
   };
 };
 
+export const generateAccessToken = async (user: IUserDoc): Promise<AccessAndRefreshTokens> => {
+  const accessTokenExpires = moment().add(1, 'minutes');
+  const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
+
+  const refreshToken = await findToken(user.id, tokenTypes.REFRESH);
+  if (!refreshToken) throw new ApiError(httpStatus.BAD_REQUEST, 'Refresh token does not exist.');
+
+  return {
+    access: {
+      token: accessToken,
+      expires: accessTokenExpires.toDate(),
+    },
+    refresh: {
+      token: refreshToken.token,
+      expires: refreshToken?.expires,
+    },
+  };
+};
+
 /**
  * Generate reset password token
  * @param {string} email

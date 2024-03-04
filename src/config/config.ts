@@ -52,6 +52,7 @@ const envVarsSchema = Joi.object()
     AWS_BUCKET_BASE_URL: Joi.string().description('aws base url'),
     AWS_BUCKET_IMS: Joi.string().description('aws bucket for IMS'),
     AWS_CUSTOMERS_FOLDER: Joi.string().description('bucket folder for customers'),
+    AWS_UNLABELED_FOLDER: Joi.string().description('bucket folder for unlabeled files'),
   })
   .unknown();
 
@@ -103,6 +104,7 @@ const config = {
     bucketBaseUrl: envVars.AWS_BUCKET_BASE_URL,
     bucket: envVars.AWS_BUCKET_IMS,
     customersFolder: envVars.AWS_CUSTOMERS_FOLDER,
+    unlabeledFolder: envVars.AWS_UNLABELED_FOLDER,
   },
 };
 
