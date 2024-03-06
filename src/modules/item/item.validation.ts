@@ -30,7 +30,7 @@ const updateItemBodySchema: Record<keyof NewItem, any> = {
   name: Joi.string().optional(),
   quantity: Joi.number().optional(),
   quantityMetric: Joi.string().optional(),
-  price: Joi.number().optional(),
+  price: Joi.number().optional().allow(null),
   isSellable: Joi.boolean().optional(),
   isCombination: Joi.boolean().optional(),
   combinationItems: Joi.array().items(Joi.object().keys(requestCombinationItemSchema)).optional(),

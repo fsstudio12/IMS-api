@@ -15,7 +15,7 @@ export interface IITem {
   name: string;
   quantity: number;
   quantityMetric: QuantityMetric;
-  price: number;
+  price: number | null;
   isSellable: boolean;
   isCombination: boolean;
   combinationItems: ICombinationItem[];

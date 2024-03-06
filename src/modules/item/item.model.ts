@@ -20,7 +20,7 @@ const itemSchema = new mongoose.Schema<IItemDoc, IItemModel>(
     name: { type: String, required: true },
     quantity: { type: Number },
     quantityMetric: { type: String, enum: QuantityMetric, default: QuantityMetric.GRAM },
-    price: { type: Number },
+    price: { type: Number, nullable: true },
     isSellable: { type: Boolean, default: true },
     isCombination: { type: Boolean, default: false },
     combinationItems: [combinationItemSchema],

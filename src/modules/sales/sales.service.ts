@@ -1,9 +1,9 @@
 import mongoose, { FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
-import Purchase from './purchase.model';
-import { IPayment, IPaymentInfo, IPurchaseDoc, IPurchaseItem, NewPurchase, UpdatePurchase } from './purchase.interfaces';
-import { findVendorById } from '../vendor/vendor.service';
+import Sales from './sales.model';
+import { IPayment, IPaymentInfo, ISalesDoc, ISalesItem, NewSales, UpdateSales } from './sales.interfaces';
+import { findCustomerById } from '../customer/customer.service';
 import { sanitizeItemParams } from '../item/item.service';
 import {
   findIndexOfObjectFromArrayByField,
@@ -18,7 +18,7 @@ import {
 } from '../utils/common';
 import { PaymentMethod, PaymentStatus } from '../../config/enums';
 
-export const generatePaymentInfo = (payment: Partial<IPayment>, items: IPurchaseItem[]): IPaymentInfo => {
+export const generatePaymentInfo = (payment: Partial<IPayment>, items: ISalesItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
 
   let status: PaymentStatus;
@@ -77,50 +77,52 @@ export const generatePaymentInfo = (payment: Partial<IPayment>, items: IPurchase
   };
 };
 
-export const createPurchase = async (purchaseBody: NewPurchase): Promise<IPurchaseDoc | null> => {
-  const vendor = await findVendorById(purchaseBody.vendorId);
-  if (!vendor) throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found.');
+export const createSales = async (salesBody: NewSales): Promise<ISalesDoc | null> => {
+  const customer = await findCustomerById(salesBody.customerId);
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found.');
 
-  const items = await sanitizeItemParams(purchaseBody.items, true);
-  const date = new Date(purchaseBody.date);
+  const items = await sanitizeItemParams(salesBody.items, false, true);
+  console.log('🚀 ~ createSales ~ items:', items);
 
-  const paymentInfo: IPaymentInfo = generatePaymentInfo(purchaseBody.payment, items);
+  const date = new Date(salesBody.date);
 
-  const purchase = Purchase.create({
-    businessId: purchaseBody.businessId,
-    vendorId: vendor._id,
+  const paymentInfo: IPaymentInfo = generatePaymentInfo(salesBody.payment, items);
+
+  const sales = Sales.create({
+    businessId: salesBody.businessId,
+    customerId: customer._id,
     paymentInfo,
     date,
-    invoiceNumber: purchaseBody.invoiceNumber,
+    invoiceNumber: salesBody.invoiceNumber,
     items,
   });
-  return purchase;
+  return sales;
 };
 
-export const getPurchasesWithMatchQuery = async (matchQuery: FilterQuery<IPurchaseDoc>): Promise<IPurchaseDoc[]> => {
-  return Purchase.aggregate([
+export const getSalesWithMatchQuery = async (matchQuery: FilterQuery<ISalesDoc>): Promise<ISalesDoc[]> => {
+  return Sales.aggregate([
     {
       $match: matchQuery,
     },
   ]);
 };
 
-export const getPurchasesByBusinessId = async (businessId: mongoose.Types.ObjectId): Promise<IPurchaseDoc[]> =>
-  getPurchasesWithMatchQuery({ businessId });
+export const getSalesByBusinessId = async (businessId: mongoose.Types.ObjectId): Promise<ISalesDoc[]> =>
+  getSalesWithMatchQuery({ businessId });
 
-export const findPurchasesByFilterQuery = async (filterQuery: FilterQuery<IPurchaseDoc>): Promise<IPurchaseDoc[]> =>
-  Purchase.find(filterQuery);
+export const findSalesByFilterQuery = async (filterQuery: FilterQuery<ISalesDoc>): Promise<ISalesDoc[]> =>
+  Sales.find(filterQuery);
 
-export const findPurchaseById = async (id: mongoose.Types.ObjectId): Promise<IPurchaseDoc | null> => Purchase.findById(id);
+export const findSalesById = async (id: mongoose.Types.ObjectId): Promise<ISalesDoc | null> => Sales.findById(id);
 
-export const findPurchaseByFilterQuery = async (filterQuery: FilterQuery<IPurchaseDoc>): Promise<IPurchaseDoc | null> =>
-  Purchase.findOne(filterQuery);
+export const findSingleSalesByFilterQuery = async (filterQuery: FilterQuery<ISalesDoc>): Promise<ISalesDoc | null> =>
+  Sales.findOne(filterQuery);
 
-export const findPurchaseByIdAndBusinessId = async (
+export const findSalesByIdAndBusinessId = async (
   _id: mongoose.Types.ObjectId,
   businessId: mongoose.Types.ObjectId
-): Promise<IPurchaseDoc | null> => {
-  return findPurchaseByFilterQuery({ _id, businessId });
+): Promise<ISalesDoc | null> => {
+  return findSingleSalesByFilterQuery({ _id, businessId });
 };
 
 export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IPayment[]): IPayment[] => {
@@ -155,7 +157,7 @@ export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IP
   return sortArrayByDate(updatedPayments, 'date');
 };
 
-export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newItems: IPurchaseItem[]): IPurchaseItem[] => {
+export const getUpdatedItemsForSales = (existingItems: ISalesItem[], newItems: ISalesItem[]): ISalesItem[] => {
   const {
     addEntities: addItems,
     removeEntities: removeItems,
@@ -187,26 +189,26 @@ export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newIt
 
   return [...editItems, ...addItems];
 
-  // Remove items from the purchase and update inventory
+  // // Remove items from the sale and update inventory
   // await Promise.all(
   //   removeItems.map(async (removeItem) => {
-  //     await removeItemFromPurchase(removeItem._id);
+  //     await removeItemFromSales(removeItem._id);
   //     await updateInventory(removeItem, 'remove');
   //   })
   // );
 
-  // // Edit items in the purchase and update inventory
+  // // Edit items in the sale and update inventory
   // await Promise.all(
   //   editItems.map(async (editItem) => {
-  //     await updateItemInPurchase(editItem._id, editItem);
+  //     await updateItemInSales(editItem._id, editItem);
   //     await updateInventory(editItem, 'edit');
   //   })
   // );
 
-  // // Add items to the purchase and update inventory
+  // // Add items to the sale and update inventory
   // await Promise.all(
   //   addItems.map(async (addItem) => {
-  //     await addItemToPurchase(addItem);
+  //     await addItemToSales(addItem);
   //     await updateInventory(addItem, 'add');
   //   })
   // );
@@ -215,7 +217,7 @@ export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newIt
   // return [...editItems, ...addItems];
 };
 
-export const updatePaymentInfo = (payments: IPayment[], items: IPurchaseItem[]): IPaymentInfo => {
+export const updatePaymentInfo = (payments: IPayment[], items: ISalesItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
   const paymentTotal: number = getTotalOfArrayByField(payments, 'amount');
 
@@ -249,62 +251,62 @@ export const updatePaymentInfo = (payments: IPayment[], items: IPurchaseItem[]):
   };
 };
 
-export const updatePurchaseById = async (
-  purchaseId: mongoose.Types.ObjectId,
-  purchaseBody: UpdatePurchase
-): Promise<IPurchaseDoc | null> => {
-  const purchase = await findPurchaseById(purchaseId);
-  if (!purchase) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase not found.');
+export const updateSalesById = async (
+  salesId: mongoose.Types.ObjectId,
+  salesBody: UpdateSales
+): Promise<ISalesDoc | null> => {
+  const sales = await findSalesById(salesId);
+  if (!sales) throw new ApiError(httpStatus.NOT_FOUND, 'Sales not found.');
 
-  if (stringifyObjectId(purchaseBody.businessId!) !== stringifyObjectId(purchase.businessId))
-    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own purchases.');
+  if (stringifyObjectId(salesBody.businessId!) !== stringifyObjectId(sales.businessId))
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own sales.');
 
-  const vendor = await findVendorById(new mongoose.Types.ObjectId(purchaseBody.vendorId));
-  if (!vendor) throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found.');
+  const customer = await findCustomerById(new mongoose.Types.ObjectId(salesBody.customerId));
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found.');
 
-  const copiedPurchaseBody = { ...purchaseBody };
-  const updatedPayments = getUpdatedPayments(purchase.paymentInfo.payments, copiedPurchaseBody.paymentInfo.payments);
+  const copiedSalesBody = { ...salesBody };
+  const updatedPayments = getUpdatedPayments(sales.paymentInfo.payments, copiedSalesBody.paymentInfo.payments);
 
-  const sanitizedItems = await sanitizeItemParams(copiedPurchaseBody.items, true);
-  const updatedItems = getUpdatedItemsForPurchase(purchase.items, sanitizedItems);
+  const sanitizedItems = await sanitizeItemParams(copiedSalesBody.items, true);
+  const updatedItems = getUpdatedItemsForSales(sales.items, sanitizedItems);
   const updatedPaymentInfo = updatePaymentInfo(updatedPayments, updatedItems);
 
-  Object.assign(purchase, {
-    vendorId: vendor._id,
+  Object.assign(sales, {
+    customerId: customer._id,
     paymentInfo: updatedPaymentInfo,
-    date: new Date(copiedPurchaseBody.date),
-    invoiceNumber: copiedPurchaseBody.invoiceNumber,
+    date: new Date(copiedSalesBody.date),
+    invoiceNumber: copiedSalesBody.invoiceNumber,
     items: updatedItems,
   });
 
-  await purchase.save();
-  return purchase;
+  await sales.save();
+  return sales;
 };
 
-export const deletePurchase = async (queryPurchasesId: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
-  const purchaseIds = splitFromQuery(queryPurchasesId);
-  const mappedPurchaseIds = purchaseIds.map((itemId: string) => new mongoose.Types.ObjectId(itemId));
+export const deleteSales = async (querySalesId: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
+  const salesIds = splitFromQuery(querySalesId);
+  const mappedSalesIds = salesIds.map((itemId: string) => new mongoose.Types.ObjectId(itemId));
 
-  const matchQuery: FilterQuery<IPurchaseDoc> = {
-    _id: { $in: mappedPurchaseIds },
+  const matchQuery: FilterQuery<ISalesDoc> = {
+    _id: { $in: mappedSalesIds },
   };
 
   if (businessId) {
     matchQuery.businessId = businessId;
   }
 
-  await Purchase.deleteMany(matchQuery);
+  await Sales.deleteMany(matchQuery);
 };
 
-export const addPurchasePayment = async (
-  purchaseId: mongoose.Types.ObjectId,
+export const addSalesPayment = async (
+  salesId: mongoose.Types.ObjectId,
   paymentBody: IPayment
-): Promise<IPurchaseDoc | null> => {
-  const purchase: IPurchaseDoc | null = await findPurchaseById(purchaseId);
-  if (!purchase) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase not found.');
+): Promise<ISalesDoc | null> => {
+  const sales: ISalesDoc | null = await findSalesById(salesId);
+  if (!sales) throw new ApiError(httpStatus.NOT_FOUND, 'Sales not found.');
 
-  if (purchase.paymentInfo.status === PaymentStatus.PAID)
-    throw new ApiError(httpStatus.BAD_REQUEST, 'The purchase has already been fully paid.');
+  if (sales.paymentInfo.status === PaymentStatus.PAID)
+    throw new ApiError(httpStatus.BAD_REQUEST, 'The sales has already been fully paid.');
 
   const payment: IPayment = {
     ...paymentBody,
@@ -312,47 +314,47 @@ export const addPurchasePayment = async (
     _id: new mongoose.Types.ObjectId(),
   };
 
-  const updatedPayments = [...purchase.paymentInfo.payments, ...[payment]];
+  const updatedPayments = [...sales.paymentInfo.payments, ...[payment]];
 
-  const updatedPaymentInfo = updatePaymentInfo(updatedPayments, purchase.items);
-  purchase.paymentInfo = updatedPaymentInfo;
-  await purchase.save();
-  return purchase;
+  const updatedPaymentInfo = updatePaymentInfo(updatedPayments, sales.items);
+  sales.paymentInfo = updatedPaymentInfo;
+  await sales.save();
+  return sales;
 };
 
-export const updatePurchasePayment = async (
-  purchaseId: mongoose.Types.ObjectId,
+export const updateSalesPayment = async (
+  salesId: mongoose.Types.ObjectId,
   paymentId: mongoose.Types.ObjectId,
   paymentBody: IPayment
-): Promise<IPurchaseDoc | null> => {
-  const purchase: IPurchaseDoc | null = await findPurchaseById(purchaseId);
-  if (!purchase) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase not found.');
+): Promise<ISalesDoc | null> => {
+  const sales: ISalesDoc | null = await findSalesById(salesId);
+  if (!sales) throw new ApiError(httpStatus.NOT_FOUND, 'Sales not found.');
 
-  const payment: IPayment | null = findObjectFromArrayByField(purchase.paymentInfo.payments, paymentId, '_id');
-  if (!payment) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase Payment not found.');
+  const payment: IPayment | null = findObjectFromArrayByField(sales.paymentInfo.payments, paymentId, '_id');
+  if (!payment) throw new ApiError(httpStatus.NOT_FOUND, 'Sales Payment not found.');
 
   Object.assign(payment, { ...paymentBody, method: paymentBody?.method ?? PaymentMethod.CASH });
 
-  const updatedPaymentInfo = updatePaymentInfo(purchase.paymentInfo.payments, purchase.items);
-  purchase.paymentInfo = updatedPaymentInfo;
-  await purchase.save();
-  return purchase;
+  const updatedPaymentInfo = updatePaymentInfo(sales.paymentInfo.payments, sales.items);
+  sales.paymentInfo = updatedPaymentInfo;
+  await sales.save();
+  return sales;
 };
 
-export const removePurchasePayment = async (
-  purchaseId: mongoose.Types.ObjectId,
+export const removeSalesPayment = async (
+  salesId: mongoose.Types.ObjectId,
   paymentId: mongoose.Types.ObjectId
-): Promise<IPurchaseDoc | null> => {
-  const purchase: IPurchaseDoc | null = await findPurchaseById(purchaseId);
-  if (!purchase) throw new ApiError(httpStatus.NOT_FOUND, 'Purchase not found.');
+): Promise<ISalesDoc | null> => {
+  const sales: ISalesDoc | null = await findSalesById(salesId);
+  if (!sales) throw new ApiError(httpStatus.NOT_FOUND, 'Sales not found.');
 
-  const paymentIndex = findIndexOfObjectFromArrayByField(purchase.paymentInfo.payments, paymentId, '_id');
+  const paymentIndex = findIndexOfObjectFromArrayByField(sales.paymentInfo.payments, paymentId, '_id');
   if (paymentIndex <= -1) throw new ApiError(httpStatus.NOT_FOUND, 'Payment not found.');
 
-  purchase.paymentInfo.payments.splice(paymentIndex, 1);
+  sales.paymentInfo.payments.splice(paymentIndex, 1);
 
-  const updatedPaymentInfo = updatePaymentInfo(purchase.paymentInfo.payments, purchase.items);
-  purchase.paymentInfo = updatedPaymentInfo;
-  await purchase.save();
-  return purchase;
+  const updatedPaymentInfo = updatePaymentInfo(sales.paymentInfo.payments, sales.items);
+  sales.paymentInfo = updatedPaymentInfo;
+  await sales.save();
+  return sales;
 };

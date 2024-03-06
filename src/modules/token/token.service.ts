@@ -130,7 +130,7 @@ export const generateAuthTokens = async (user: IUserDoc): Promise<AccessAndRefre
 };
 
 export const generateAccessToken = async (user: IUserDoc): Promise<AccessAndRefreshTokens> => {
-  const accessTokenExpires = moment().add(1, 'minutes');
+  const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
   const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
 
   const refreshToken = await findToken(user.id, tokenTypes.REFRESH);

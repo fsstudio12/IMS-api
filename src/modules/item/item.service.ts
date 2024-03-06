@@ -35,7 +35,8 @@ export const findItemByIdAndBusinessId = async (
 
 export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseItem>(
   items: T[],
-  useInputItemPrice: boolean = false
+  useInputItemPrice: boolean = false,
+  checkIfSellable: boolean = false
 ): Promise<T[]> => {
   const itemIds = items.map((item: T) => item._id);
   const dbItems = await findItemsByFilterQuery({
@@ -54,6 +55,10 @@ export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseI
   return items.map((item: T) => {
     const correspondingItem = dbItemsMap.get(stringifyObjectId(item._id));
     if (!correspondingItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
+
+    if (checkIfSellable && !correspondingItem.isSellable)
+      throw new ApiError(httpStatus.BAD_REQUEST, `Item ${correspondingItem.name} is not sellable.`);
+
     return {
       ...item,
       name: correspondingItem.name,
