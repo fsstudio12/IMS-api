@@ -189,7 +189,7 @@ export const getUpdatedItemsForSales = (existingItems: ISalesItem[], newItems: I
 
   return [...editItems, ...addItems];
 
-  // // Remove items from the sale and update inventory
+  // // Remove items from the sale and update inventory after completing the inventory logic
   // await Promise.all(
   //   removeItems.map(async (removeItem) => {
   //     await removeItemFromSales(removeItem._id);
@@ -267,7 +267,7 @@ export const updateSalesById = async (
   const copiedSalesBody = { ...salesBody };
   const updatedPayments = getUpdatedPayments(sales.paymentInfo.payments, copiedSalesBody.paymentInfo.payments);
 
-  const sanitizedItems = await sanitizeItemParams(copiedSalesBody.items, true);
+  const sanitizedItems = await sanitizeItemParams(copiedSalesBody.items, false, true);
   const updatedItems = getUpdatedItemsForSales(sales.items, sanitizedItems);
   const updatedPaymentInfo = updatePaymentInfo(updatedPayments, updatedItems);
 

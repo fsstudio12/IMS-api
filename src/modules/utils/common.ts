@@ -62,9 +62,12 @@ export const findIndexOfObjectFromArrayByField = <T>(
 const getDifference = (firstArray: object[], secondArray: object[]) =>
   firstArray.filter(
     (firstArrayObject: any) =>
-      !secondArray.some(
-        (secondArrayObject: any) => stringifyObjectId(firstArrayObject._id) === stringifyObjectId(secondArrayObject._id)
-      )
+      !secondArray.some((secondArrayObject: any) => {
+        if (!firstArrayObject._id || !secondArrayObject._id) {
+          return !firstArrayObject._id && !secondArrayObject._id;
+        }
+        return stringifyObjectId(firstArrayObject._id) === stringifyObjectId(secondArrayObject._id);
+      })
   );
 
 export const getAddRemoveEditArrays = (newArray: object[], oldArray: object[]): any => {

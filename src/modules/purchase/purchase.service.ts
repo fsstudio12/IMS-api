@@ -187,7 +187,7 @@ export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newIt
 
   return [...editItems, ...addItems];
 
-  // Remove items from the purchase and update inventory
+  // Remove items from the purchase and update inventory after completing the inventory logic
   // await Promise.all(
   //   removeItems.map(async (removeItem) => {
   //     await removeItemFromPurchase(removeItem._id);

@@ -12,7 +12,7 @@ router
 
 router
   .route('/:salesId')
-  .get(auth(), validate(salesValidation.getSalesSchema), salesController.getSalesHandler)
+  .get(auth(), validate(salesValidation.getSalesSchema), salesController.getSingleSalesHandler)
   .patch(auth(), validate(salesValidation.updateSalesSchema), salesController.updateSalesHandler)
   .delete(auth(), validate(salesValidation.deleteSalesSchema), salesController.deleteSalesHandler);
 
