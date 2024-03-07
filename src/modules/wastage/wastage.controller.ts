@@ -9,7 +9,6 @@ import * as wastageService from './wastage.service';
 
 export const createWastageHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
-
   const wastage = await wastageService.createWastage({ ...req.body, businessId });
   res.send(createSuccessResponse({ wastage }));
 });

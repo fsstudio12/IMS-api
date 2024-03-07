@@ -2,7 +2,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
 import Purchase from './purchase.model';
-import { IPayment, IPaymentInfo, IPurchaseDoc, IPurchaseItem, NewPurchase, UpdatePurchase } from './purchase.interfaces';
+import { IPayment, IPaymentInfo, IPurchaseDoc, NewPurchase, UpdatePurchase } from './purchase.interfaces';
 import { findVendorById } from '../vendor/vendor.service';
 import { sanitizeItemParams } from '../item/item.service';
 import {
@@ -17,8 +17,9 @@ import {
   stringifyObjectId,
 } from '../utils/common';
 import { PaymentMethod, PaymentStatus } from '../../config/enums';
+import { ICombinationItem } from '../item/item.interfaces';
 
-export const generatePaymentInfo = (payment: Partial<IPayment>, items: IPurchaseItem[]): IPaymentInfo => {
+export const generatePaymentInfo = (payment: Partial<IPayment>, items: ICombinationItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
 
   let status: PaymentStatus;
@@ -81,7 +82,7 @@ export const createPurchase = async (purchaseBody: NewPurchase): Promise<IPurcha
   const vendor = await findVendorById(purchaseBody.vendorId);
   if (!vendor) throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found.');
 
-  const items = await sanitizeItemParams(purchaseBody.items, true);
+  const items = (await sanitizeItemParams(purchaseBody.items, true)) as ICombinationItem[];
   const date = new Date(purchaseBody.date);
 
   const paymentInfo: IPaymentInfo = generatePaymentInfo(purchaseBody.payment, items);
@@ -155,7 +156,10 @@ export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IP
   return sortArrayByDate(updatedPayments, 'date');
 };
 
-export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newItems: IPurchaseItem[]): IPurchaseItem[] => {
+export const getUpdatedItemsForPurchase = (
+  existingItems: ICombinationItem[],
+  newItems: ICombinationItem[]
+): ICombinationItem[] => {
   const {
     addEntities: addItems,
     removeEntities: removeItems,
@@ -215,7 +219,7 @@ export const getUpdatedItemsForPurchase = (existingItems: IPurchaseItem[], newIt
   // return [...editItems, ...addItems];
 };
 
-export const updatePaymentInfo = (payments: IPayment[], items: IPurchaseItem[]): IPaymentInfo => {
+export const updatePaymentInfo = (payments: IPayment[], items: ICombinationItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
   const paymentTotal: number = getTotalOfArrayByField(payments, 'amount');
 
@@ -265,7 +269,7 @@ export const updatePurchaseById = async (
   const copiedPurchaseBody = { ...purchaseBody };
   const updatedPayments = getUpdatedPayments(purchase.paymentInfo.payments, copiedPurchaseBody.paymentInfo.payments);
 
-  const sanitizedItems = await sanitizeItemParams(copiedPurchaseBody.items, true);
+  const sanitizedItems = (await sanitizeItemParams(copiedPurchaseBody.items, true)) as ICombinationItem[];
   const updatedItems = getUpdatedItemsForPurchase(purchase.items, sanitizedItems);
   const updatedPaymentInfo = updatePaymentInfo(updatedPayments, updatedItems);
 

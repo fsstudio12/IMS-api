@@ -5,7 +5,6 @@ import { ICombinationItem, IItemDoc, ItemTableList, NewItem, UpdateItem } from '
 import Item from './item.model';
 import runInTransaction from '../utils/transactionWrapper';
 import { splitFromQuery, stringifyObjectId } from '../utils/common';
-import { IPurchaseItem } from '../purchase/purchase.interfaces';
 
 export const getItemsWithMatchQuery = async (matchQuery: FilterQuery<IItemDoc>): Promise<IItemDoc[]> => {
   return Item.aggregate([
@@ -33,12 +32,13 @@ export const findItemByIdAndBusinessId = async (
   return findItemByFilterQuery({ _id, businessId });
 };
 
-export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseItem>(
-  items: T[],
+export const sanitizeItemParams = async (
+  items: ICombinationItem[],
   useInputItemPrice: boolean = false,
-  checkIfSellable: boolean = false
-): Promise<T[]> => {
-  const itemIds = items.map((item: T) => item._id);
+  checkIfSellable: boolean = false,
+  returnPrice: boolean = true
+): Promise<ICombinationItem[]> => {
+  const itemIds = items.map((item: ICombinationItem) => item._id);
   const dbItems = await findItemsByFilterQuery({
     _id: {
       $in: itemIds,
@@ -52,18 +52,25 @@ export const sanitizeItemParams = async <T extends ICombinationItem | IPurchaseI
     }
   }
 
-  return items.map((item: T) => {
+  return items.map((item: ICombinationItem) => {
     const correspondingItem = dbItemsMap.get(stringifyObjectId(item._id));
     if (!correspondingItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
 
     if (checkIfSellable && !correspondingItem.isSellable)
       throw new ApiError(httpStatus.BAD_REQUEST, `Item ${correspondingItem.name} is not sellable.`);
 
-    return {
+    let returnItem = {
       ...item,
       name: correspondingItem.name,
-      price: useInputItemPrice ? (item as IPurchaseItem).price : correspondingItem.price,
     };
+
+    if (returnPrice) {
+      returnItem = {
+        ...returnItem,
+        price: useInputItemPrice ? item.price ?? 0 : correspondingItem.price ?? 0,
+      };
+    }
+    return returnItem;
   });
 };
 

@@ -2,7 +2,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
 import Sales from './sales.model';
-import { IPayment, IPaymentInfo, ISalesDoc, ISalesItem, NewSales, UpdateSales } from './sales.interfaces';
+import { IPayment, IPaymentInfo, ISalesDoc, NewSales, UpdateSales } from './sales.interfaces';
 import { findCustomerById } from '../customer/customer.service';
 import { sanitizeItemParams } from '../item/item.service';
 import {
@@ -17,8 +17,9 @@ import {
   stringifyObjectId,
 } from '../utils/common';
 import { PaymentMethod, PaymentStatus } from '../../config/enums';
+import { ICombinationItem } from '../item/item.interfaces';
 
-export const generatePaymentInfo = (payment: Partial<IPayment>, items: ISalesItem[]): IPaymentInfo => {
+export const generatePaymentInfo = (payment: Partial<IPayment>, items: ICombinationItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
 
   let status: PaymentStatus;
@@ -81,8 +82,7 @@ export const createSales = async (salesBody: NewSales): Promise<ISalesDoc | null
   const customer = await findCustomerById(salesBody.customerId);
   if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found.');
 
-  const items = await sanitizeItemParams(salesBody.items, false, true);
-  console.log('🚀 ~ createSales ~ items:', items);
+  const items = (await sanitizeItemParams(salesBody.items, false, true)) as ICombinationItem[];
 
   const date = new Date(salesBody.date);
 
@@ -157,7 +157,10 @@ export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IP
   return sortArrayByDate(updatedPayments, 'date');
 };
 
-export const getUpdatedItemsForSales = (existingItems: ISalesItem[], newItems: ISalesItem[]): ISalesItem[] => {
+export const getUpdatedItemsForSales = (
+  existingItems: ICombinationItem[],
+  newItems: ICombinationItem[]
+): ICombinationItem[] => {
   const {
     addEntities: addItems,
     removeEntities: removeItems,
@@ -217,7 +220,7 @@ export const getUpdatedItemsForSales = (existingItems: ISalesItem[], newItems: I
   // return [...editItems, ...addItems];
 };
 
-export const updatePaymentInfo = (payments: IPayment[], items: ISalesItem[]): IPaymentInfo => {
+export const updatePaymentInfo = (payments: IPayment[], items: ICombinationItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
   const paymentTotal: number = getTotalOfArrayByField(payments, 'amount');
 
@@ -267,7 +270,7 @@ export const updateSalesById = async (
   const copiedSalesBody = { ...salesBody };
   const updatedPayments = getUpdatedPayments(sales.paymentInfo.payments, copiedSalesBody.paymentInfo.payments);
 
-  const sanitizedItems = await sanitizeItemParams(copiedSalesBody.items, false, true);
+  const sanitizedItems = (await sanitizeItemParams(copiedSalesBody.items, false, true)) as ICombinationItem[];
   const updatedItems = getUpdatedItemsForSales(sales.items, sanitizedItems);
   const updatedPaymentInfo = updatePaymentInfo(updatedPayments, updatedItems);
 

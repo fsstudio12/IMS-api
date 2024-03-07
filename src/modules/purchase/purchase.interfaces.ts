@@ -19,17 +19,13 @@ export interface IPaymentInfo {
   payments: IPayment[];
 }
 
-export interface IPurchaseItem extends ICombinationItem {
-  price: number;
-}
-
 export interface IPurchase {
   businessId: mongoose.Types.ObjectId;
   vendorId: mongoose.Types.ObjectId;
   paymentInfo: IPaymentInfo;
   date: Date;
   invoiceNumber: string;
-  items: IPurchaseItem[];
+  items: ICombinationItem[];
 }
 
 export interface IPurchaseDoc extends IPurchase, Document {}
@@ -42,7 +38,7 @@ export interface INewPurchase {
   payment: IPayment;
   date: Date;
   invoiceNumber: string;
-  items: IPurchaseItem[];
+  items: ICombinationItem[];
 }
 
 export type NewPurchase = INewPurchase;

@@ -1,6 +1,6 @@
 import mongoose, { Document, Model } from 'mongoose';
-import { ICombinationItem } from '../item/item.interfaces';
 import { PaymentMethod, PaymentStatus } from '../../config/enums';
+import { ICombinationItem } from '../item/item.interfaces';
 
 export interface IPayment {
   _id: mongoose.Types.ObjectId;
@@ -19,17 +19,13 @@ export interface IPaymentInfo {
   payments: IPayment[];
 }
 
-export interface ISalesItem extends ICombinationItem {
-  price: number;
-}
-
 export interface ISales {
   businessId: mongoose.Types.ObjectId;
   customerId: mongoose.Types.ObjectId;
   paymentInfo: IPaymentInfo;
   date: Date;
   invoiceNumber: string;
-  items: ISalesItem[];
+  items: ICombinationItem[];
 }
 
 export interface ISalesDoc extends ISales, Document {}
@@ -42,7 +38,7 @@ export interface INewSales {
   payment: IPayment;
   date: Date;
   invoiceNumber: string;
-  items: ISalesItem[];
+  items: ICombinationItem[];
 }
 
 export type NewSales = INewSales;

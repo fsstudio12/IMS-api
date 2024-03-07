@@ -7,7 +7,7 @@ export interface ICombinationItem {
   name?: string;
   quantity: number;
   quantityMetric: QuantityMetric;
-  // [Symbol.iterator](): Iterator<[string, any]>;
+  price?: number;
 }
 
 export interface IITem {
