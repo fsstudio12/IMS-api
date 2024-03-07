@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
-import { catchAsync } from '../utils';
+import { catchAsync, extractBusinessId } from '../utils';
 
 import createSuccessResponse from '../success/SuccessResponse';
 import { ApiError } from '../errors';
@@ -9,8 +9,7 @@ import { ApiError } from '../errors';
 import * as customerService from './customer.service';
 
 export const getCustomersHandler = catchAsync(async (req: Request, res: Response) => {
-  const { businessId } = req.user;
-
+  const businessId = extractBusinessId(req);
   const customers = await customerService.findCustomersByFilterQuery({ businessId });
   res.send(createSuccessResponse({ customers }));
 });
@@ -25,8 +24,7 @@ export const getCustomerHandler = catchAsync(async (req: Request, res: Response)
 });
 
 export const createCustomerHandler = catchAsync(async (req: Request, res: Response) => {
-  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+  const businessId = extractBusinessId(req);
 
   const customer = await customerService.createCustomer({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ customer }));
@@ -34,8 +32,7 @@ export const createCustomerHandler = catchAsync(async (req: Request, res: Respon
 
 export const updateCustomerHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['customerId'] === 'string') {
-    const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-    if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+    const businessId = extractBusinessId(req);
 
     const customer = await customerService.updateCustomerById(new mongoose.Types.ObjectId(req.params['customerId']), {
       ...req.body,

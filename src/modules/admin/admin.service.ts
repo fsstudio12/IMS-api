@@ -18,7 +18,3 @@ export const toggleBanUser = async (userId: mongoose.Types.ObjectId) => {
   user.isBanned = !user.isBanned;
   await user.save();
 };
-
-export const testService = async () => {
-  console.log('test');
-};

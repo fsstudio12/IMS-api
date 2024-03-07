@@ -14,6 +14,7 @@ import recipeRoute from './recipe.route';
 import salesRoute from './sales.route';
 import userRoute from './user.route';
 import vendorRoute from './vendor.route';
+import wastageRoute from './wastage.route';
 
 const router = express.Router();
 
@@ -66,6 +67,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/vendors',
     route: vendorRoute,
+  },
+  {
+    path: '/wastages',
+    route: wastageRoute,
   },
 ];
 

@@ -1,22 +1,19 @@
 import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { catchAsync } from '../utils';
+import { catchAsync, extractBusinessId } from '../utils';
 import * as purchaseService from './purchase.service';
 import createSuccessResponse from '../success/SuccessResponse';
 import { ApiError } from '../errors';
 
 export const createPurchaseHandler = catchAsync(async (req: Request, res: Response) => {
-  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
-
+  const businessId = extractBusinessId(req);
   const purchase = await purchaseService.createPurchase({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ purchase }));
 });
 
 export const getPurchasesHandler = catchAsync(async (req: Request, res: Response) => {
-  const { businessId } = req.user;
-
+  const businessId = extractBusinessId(req);
   const purchases = await purchaseService.getPurchasesByBusinessId(businessId);
   res.send(createSuccessResponse({ purchases }));
 });
@@ -32,8 +29,7 @@ export const getPurchaseHandler = catchAsync(async (req: Request, res: Response)
 
 export const updatePurchaseHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['purchaseId'] === 'string') {
-    const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-    if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+    const businessId = extractBusinessId(req);
 
     const purchase = await purchaseService.updatePurchaseById(new mongoose.Types.ObjectId(req.params['purchaseId']), {
       ...req.body,

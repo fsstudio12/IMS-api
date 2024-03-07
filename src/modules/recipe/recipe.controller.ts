@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
-import { catchAsync } from '../utils';
+import { catchAsync, extractBusinessId } from '../utils';
 import { ApiError } from '../errors';
 import * as recipeService from './recipe.service';
 import createSuccessResponse from '../success/SuccessResponse';
 
 export const createRecipeHandler = catchAsync(async (req: Request, res: Response) => {
-  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+  const businessId = extractBusinessId(req);
 
   console.log('create recipe');
   const recipe = await recipeService.createRecipe({ ...req.body, businessId });
@@ -16,8 +15,7 @@ export const createRecipeHandler = catchAsync(async (req: Request, res: Response
 });
 
 export const getRecipesHandler = catchAsync(async (req: Request, res: Response) => {
-  const { businessId } = req.user;
-
+  const businessId = extractBusinessId(req);
   const recipes = await recipeService.getRecipesByBusinessId(businessId);
 
   res.send(createSuccessResponse({ recipes }));
@@ -33,8 +31,7 @@ export const getRecipeHandler = catchAsync(async (req: Request, res: Response) =
 
 export const updateRecipeHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['recipeId'] === 'string') {
-    const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-    if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+    const businessId = extractBusinessId(req);
 
     const recipe = await recipeService.updateRecipeById(new mongoose.Types.ObjectId(req.params['recipeId']), {
       ...req.body,

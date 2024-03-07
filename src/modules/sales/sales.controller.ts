@@ -1,22 +1,20 @@
 import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { catchAsync } from '../utils';
+import { catchAsync, extractBusinessId } from '../utils';
 import * as salesService from './sales.service';
 import createSuccessResponse from '../success/SuccessResponse';
 import { ApiError } from '../errors';
 
 export const createSalesHandler = catchAsync(async (req: Request, res: Response) => {
-  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+  const businessId = extractBusinessId(req);
 
   const sales = await salesService.createSales({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ sales }));
 });
 
 export const getSalesHandler = catchAsync(async (req: Request, res: Response) => {
-  const { businessId } = req.user;
-
+  const businessId = extractBusinessId(req);
   const sales = await salesService.getSalesByBusinessId(businessId);
   res.send(createSuccessResponse({ sales }));
 });
@@ -32,8 +30,7 @@ export const getSingleSalesHandler = catchAsync(async (req: Request, res: Respon
 
 export const updateSalesHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['salesId'] === 'string') {
-    const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-    if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+    const businessId = extractBusinessId(req);
 
     const sales = await salesService.updateSalesById(new mongoose.Types.ObjectId(req.params['salesId']), {
       ...req.body,

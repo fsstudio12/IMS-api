@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 import httpStatus, { NO_CONTENT } from 'http-status';
 import { Request, Response } from 'express';
-import { catchAsync } from '../utils';
+import { catchAsync, extractBusinessId } from '../utils';
 import * as categoryService from './category.service';
 import { ApiError } from '../errors';
 import createSuccessResponse from '../success/SuccessResponse';
 
 export const createCategoryHandler = catchAsync(async (req: Request, res: Response) => {
-  const businessId = req.user.businessId ? req.user.businessId : new mongoose.Types.ObjectId(req.body.businessId);
-  if (!businessId) throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+  const businessId = extractBusinessId(req);
 
   const category = await categoryService.createCategory({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ category }));
