@@ -4,6 +4,7 @@ import { PaymentMethod, PaymentStatus } from '../../config/enums';
 
 export interface IPayment {
   _id: mongoose.Types.ObjectId;
+  title?: string;
   name?: string;
   amount: number;
   method?: PaymentMethod;

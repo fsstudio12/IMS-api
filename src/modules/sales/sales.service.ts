@@ -2,7 +2,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
 import Sales from './sales.model';
-import { IPayment, IPaymentInfo, ISalesDoc, NewSales, UpdateSales } from './sales.interfaces';
+import { ISalesDoc, NewSales, UpdateSales } from './sales.interfaces';
 import { findCustomerById } from '../customer/customer.service';
 import { sanitizeItemParams } from '../item/item.service';
 import {
@@ -12,12 +12,13 @@ import {
   getTotalOfArrayByField,
   parseToInteger,
   setTwoDecimalPlaces,
-  sortArrayByDate,
   splitFromQuery,
   stringifyObjectId,
 } from '../utils/common';
 import { PaymentMethod, PaymentStatus } from '../../config/enums';
 import { ICombinationItem } from '../item/item.interfaces';
+import { IPayment, IPaymentInfo } from '../purchase/purchase.interfaces';
+import { getUpdatedPayments } from '../purchase/purchase.service';
 
 export const generatePaymentInfo = (payment: Partial<IPayment>, items: ICombinationItem[]): IPaymentInfo => {
   const total: number = getTotalOfArrayByField(items, 'price');
@@ -123,38 +124,6 @@ export const findSalesByIdAndBusinessId = async (
   businessId: mongoose.Types.ObjectId
 ): Promise<ISalesDoc | null> => {
   return findSingleSalesByFilterQuery({ _id, businessId });
-};
-
-export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IPayment[]): IPayment[] => {
-  const {
-    removeEntities: removePayments,
-    editEntities: editPayments,
-    addEntities: addPayments,
-  } = getAddRemoveEditArrays(newPayments, existingPayments);
-
-  const updatedPayments = existingPayments
-    .filter(
-      (payment) =>
-        !removePayments.some(
-          (removePayment: IPayment) => stringifyObjectId(removePayment._id) === stringifyObjectId(payment._id)
-        )
-    )
-    .map(
-      (payment) =>
-        editPayments.find(
-          (editPayment: IPayment) => stringifyObjectId(editPayment._id) === stringifyObjectId(payment._id)
-        ) || payment
-    )
-    .concat(
-      addPayments.map((addPayment: IPayment) => ({
-        _id: new mongoose.Types.ObjectId(),
-        amount: setTwoDecimalPlaces(addPayment.amount),
-        method: addPayment.method ?? PaymentMethod.CASH,
-        date: new Date(addPayment.date),
-      }))
-    );
-
-  return sortArrayByDate(updatedPayments, 'date');
 };
 
 export const getUpdatedItemsForSales = (

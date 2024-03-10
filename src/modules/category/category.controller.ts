@@ -14,15 +14,9 @@ export const createCategoryHandler = catchAsync(async (req: Request, res: Respon
 });
 
 export const getCategoriesHandler = catchAsync(async (req: Request, res: Response) => {
-  let businessId: mongoose.Types.ObjectId | null = null;
-
-  if (req.user.businessId) {
-    businessId = req.user.businessId;
-  } else if (req.body.businessId) {
-    businessId = new mongoose.Types.ObjectId(req.body.businessId);
-  }
-
-  res.send(createSuccessResponse({ categories: await categoryService.getCategories(businessId) }));
+  const businessId = extractBusinessId(req);
+  const categories = await categoryService.getCategories(businessId);
+  res.send(createSuccessResponse({ categories }));
 });
 
 export const getCategoryHandler = catchAsync(async (req: Request, res: Response) => {

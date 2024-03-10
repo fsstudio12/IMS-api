@@ -20,3 +20,15 @@ export interface IRecipeModel extends Model<IRecipeDoc> {
 export type UpdateRecipe = Partial<IRecipe>;
 
 export type NewRecipe = IRecipe;
+
+export type RecipeTableList = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  quantity: number;
+  quantityMetric: QuantityMetric;
+  combination: string[];
+  price: number;
+  foodCost: number;
+  average: number;
+  combinationItems: ICombinationItem[];
+};

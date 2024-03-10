@@ -6,6 +6,7 @@ import { catchAsync, extractBusinessId } from '../utils';
 import { ApiError } from '../errors';
 import createSuccessResponse from '../success/SuccessResponse';
 import * as wastageService from './wastage.service';
+import { IWastageDoc } from './wastage.interfaces';
 
 export const createWastageHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
@@ -40,4 +41,17 @@ export const deleteWastageHandler = catchAsync(async (req: Request, res: Respons
     await wastageService.deleteWastageById(req.params['wastageId'], req.user.businessId);
     res.send(createSuccessResponse());
   }
+});
+
+export const filterWastagesHandler = catchAsync(async (req: Request, res: Response) => {
+  const businessId = extractBusinessId(req);
+  console.log('🚀 ~ filterWastagesHandler ~ businessId:', businessId);
+  let wastages: IWastageDoc[] = [];
+  if (req.query['filterType'] === 'date') {
+    wastages = await wastageService.getWastagesByDate(businessId);
+  } else {
+    wastages = await wastageService.getWastagesByItem(businessId);
+  }
+
+  res.send(createSuccessResponse({ wastages }));
 });

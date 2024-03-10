@@ -48,3 +48,11 @@ export const deleteRecipeHandler = catchAsync(async (req: Request, res: Response
     res.send(createSuccessResponse());
   }
 });
+
+export const recipeTableListHandler = catchAsync(async (req: Request, res: Response) => {
+  const businessId = extractBusinessId(req);
+
+  const tableListRecipes = await recipeService.getRecipeTableListHandler(businessId);
+
+  res.send(createSuccessResponse({ recipes: tableListRecipes }));
+});

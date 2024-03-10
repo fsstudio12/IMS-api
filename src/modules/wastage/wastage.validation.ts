@@ -1,7 +1,9 @@
+import httpStatus from 'http-status';
 import Joi from 'joi';
 import { NewWastage } from './wastage.interfaces';
 import { objectId } from '../validate';
 import { requestCombinationItemSchema } from '../item/item.validation';
+import { ApiError } from '../errors';
 
 const createWastageBodySchema: Record<keyof NewWastage, any> = {
   date: Joi.string(),
@@ -35,5 +37,17 @@ export const updateWastageSchema = {
 export const deleteWastageSchema = {
   params: Joi.object().keys({
     wastageId: Joi.string().custom(objectId),
+  }),
+};
+
+export const filterWastageSchema = {
+  query: Joi.object().keys({
+    filterType: Joi.string()
+      .valid('date', 'item')
+      .insensitive()
+      .required()
+      .error(() => {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'filterType must be one of date or item.');
+      }),
   }),
 };

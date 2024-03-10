@@ -11,6 +11,10 @@ router
   .post(auth(), validate(wastageValidation.createWastageSchema), wastageController.createWastageHandler);
 
 router
+  .route('/filter')
+  .get(auth(), validate(wastageValidation.filterWastageSchema), wastageController.filterWastagesHandler);
+
+router
   .route('/:wastageId')
   .get(auth(), validate(wastageValidation.getWastageSchema), wastageController.getWastageHandler)
   .patch(auth(), validate(wastageValidation.updateWastageSchema), wastageController.updateWastageHandler)

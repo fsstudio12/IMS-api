@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
+import httpStatus from 'http-status';
+
 import { SortType } from '../../config/enums';
+import { ApiError } from '../errors';
+
+export const parseToString = (value: any): string => value.toString();
 
 export const parseToInteger = (value: string): number => parseInt(value, 10);
 
@@ -81,3 +86,31 @@ export const getAddRemoveEditArrays = (newArray: object[], oldArray: object[]): 
     editEntities,
   };
 };
+
+export const getOrderString = (number: number): string => {
+  if (number < 1) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid input.');
+
+  const lastDigit: number = number % 10;
+
+  if (number === 1) return '1st';
+  if (number === 2) return '2nd';
+  if (number === 3) return '3rd';
+
+  let suffix: string;
+
+  if (number > 10 && number < 20) {
+    suffix = 'th';
+  } else if (lastDigit === 1) {
+    suffix = 'st';
+  } else if (lastDigit === 2) {
+    suffix = 'nd';
+  } else if (lastDigit === 3) {
+    suffix = 'rd';
+  } else {
+    suffix = 'th';
+  }
+
+  return `${number}${suffix}`;
+};
+
+export const deepCopy = (dataToCopy: any) => JSON.parse(JSON.stringify(dataToCopy));

@@ -7,6 +7,7 @@ import createSuccessResponse from '../success/SuccessResponse';
 import { ApiError } from '../errors';
 
 import * as vendorService from './vendor.service';
+import { getPurchaseHistoryWithVendor } from '../purchase/purchase.service';
 
 export const getVendorsHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
@@ -46,5 +47,17 @@ export const deleteVendorHandler = catchAsync(async (req: Request, res: Response
   if (typeof req.params['vendorId'] === 'string') {
     await vendorService.deleteVendorById(req.params['vendorId'], req.user.businessId);
     res.send(createSuccessResponse());
+  }
+});
+
+export const getVendorHistoryHandler = catchAsync(async (req: Request, res: Response) => {
+  if (typeof req.params['vendorId'] === 'string') {
+    const businessId = extractBusinessId(req);
+
+    const vendorPurchaseHistory = await getPurchaseHistoryWithVendor(
+      new mongoose.Types.ObjectId(req.params['vendorId']),
+      businessId
+    );
+    res.send(createSuccessResponse({ history: vendorPurchaseHistory }));
   }
 });

@@ -1,7 +1,7 @@
 import mongoose, { ClientSession, FilterQuery } from 'mongoose';
 import httpStatus from 'http-status';
 import { ApiError } from '../errors';
-import { IRecipeDoc, NewRecipe, UpdateRecipe } from './recipe.interfaces';
+import { IRecipeDoc, NewRecipe, RecipeTableList, UpdateRecipe } from './recipe.interfaces';
 import Recipe from './recipe.model';
 import runInTransaction from '../utils/transactionWrapper';
 import { sanitizeItemParams } from '../item/item.service';
@@ -101,4 +101,109 @@ export const deleteRecipesById = async (queryRecipeIds: string, businessId?: mon
     );
     await Recipe.deleteMany(matchQuery).session(session);
   });
+};
+
+export const getRecipeTableListHandler = async (businessId: mongoose.Types.ObjectId): Promise<RecipeTableList[]> => {
+  return Recipe.aggregate([
+    {
+      $match: {
+        businessId,
+      },
+    },
+    {
+      $addFields: {
+        foodCost: 123,
+        average: 130,
+        combination: {
+          $cond: [
+            {
+              $eq: ['$isCombination', true],
+            },
+            {
+              $map: {
+                input: '$combinationItems',
+                as: 'ci',
+                in: '$$ci.name',
+              },
+            },
+            null,
+          ],
+        },
+      },
+    },
+    {
+      $unwind: {
+        path: '$combinationItems',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'items',
+        localField: 'combinationItems._id',
+        foreignField: '_id',
+        as: 'ci',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              isCombination: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: [
+            '$$ROOT',
+            {
+              combinationItems: {
+                $cond: [
+                  '$ci._id',
+                  {
+                    _id: '$combinationItems._id',
+                    name: '$combinationItems.name',
+                    quantity: '$combinationItems.quantity',
+                    quantityMetric: '$combinationItems.quantityMetric',
+                    // isCombination: { $first: '$ci.isCombination' },
+                  },
+                  '$$REMOVE',
+                ],
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id',
+        name: { $first: '$name' },
+        quantity: { $first: '$quantity' },
+        quantityMetric: { $first: '$quantityMetric' },
+        combination: { $first: '$combination' },
+        price: { $first: '$price' },
+        foodCost: { $first: '$foodCost' },
+        average: { $first: '$average' },
+        combinationItems: {
+          $push: {
+            $cond: ['$combinationItems._id', '$combinationItems', '$$REMOVE'],
+          },
+        },
+        createdAt: { $first: '$createdAt' },
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $project: {
+        createdAt: 0,
+      },
+    },
+  ]);
 };

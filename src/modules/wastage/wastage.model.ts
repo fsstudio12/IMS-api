@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { IWastageDoc, IWastageModel } from './wastage.interfaces';
-import { combinationItemSchema } from '../item/item.model';
+import { purchaseItemSchema } from '../purchase/purchase.model';
 
 export const wastageSchema = new mongoose.Schema<IWastageDoc, IWastageModel>(
   {
@@ -14,7 +14,7 @@ export const wastageSchema = new mongoose.Schema<IWastageDoc, IWastageModel>(
     // },
     date: { type: Date },
     description: { type: String },
-    items: [combinationItemSchema],
+    items: [purchaseItemSchema],
   },
   { timestamps: true }
 );

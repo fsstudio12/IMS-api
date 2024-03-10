@@ -16,4 +16,6 @@ router
   .patch(auth(), validate(recipeValidation.updateRecipeSchema), recipeController.updateRecipeHandler)
   .delete(auth(), validate(recipeValidation.deleteRecipeSchema), recipeController.deleteRecipeHandler);
 
+router.route('/table/list').get(auth(), recipeController.recipeTableListHandler);
+
 export default router;

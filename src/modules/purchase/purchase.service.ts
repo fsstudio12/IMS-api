@@ -6,9 +6,11 @@ import { IPayment, IPaymentInfo, IPurchaseDoc, NewPurchase, UpdatePurchase } fro
 import { findVendorById } from '../vendor/vendor.service';
 import { sanitizeItemParams } from '../item/item.service';
 import {
+  deepCopy,
   findIndexOfObjectFromArrayByField,
   findObjectFromArrayByField,
   getAddRemoveEditArrays,
+  getOrderString,
   getTotalOfArrayByField,
   parseToInteger,
   setTwoDecimalPlaces,
@@ -103,6 +105,39 @@ export const getPurchasesWithMatchQuery = async (matchQuery: FilterQuery<IPurcha
     {
       $match: matchQuery,
     },
+    {
+      $lookup: {
+        from: 'vendors',
+        localField: 'vendorId',
+        foreignField: '_id',
+        as: 'vendorInfo',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phone: 1,
+              registrationType: 1,
+              registrationNumber: 1,
+              address: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        invoiceNumber: 1,
+        date: 1,
+        paymentInfo: 1,
+        items: 1,
+        vendorInfo: { $first: '$vendorInfo' },
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
   ]);
 };
 
@@ -153,7 +188,11 @@ export const getUpdatedPayments = (existingPayments: IPayment[], newPayments: IP
       }))
     );
 
-  return sortArrayByDate(updatedPayments, 'date');
+  const sortedPayments = sortArrayByDate(updatedPayments, 'date').map((payment: IPayment, paymentIndex: number) => ({
+    ...payment,
+    title: `${getOrderString(paymentIndex + 1)} Payment`,
+  }));
+  return sortedPayments;
 };
 
 export const getUpdatedItemsForPurchase = (
@@ -312,11 +351,17 @@ export const addPurchasePayment = async (
 
   const payment: IPayment = {
     ...paymentBody,
+    date: paymentBody.date ? new Date(paymentBody.date) : new Date(),
     method: paymentBody?.method ?? PaymentMethod.CASH,
     _id: new mongoose.Types.ObjectId(),
   };
 
-  const updatedPayments = [...purchase.paymentInfo.payments, ...[payment]];
+  const copiedPurchase = deepCopy(purchase);
+
+  const updatedPayments = getUpdatedPayments(copiedPurchase.paymentInfo.payments, [
+    ...copiedPurchase.paymentInfo.payments,
+    ...[payment],
+  ]);
 
   const updatedPaymentInfo = updatePaymentInfo(updatedPayments, purchase.items);
   purchase.paymentInfo = updatedPaymentInfo;
@@ -359,4 +404,14 @@ export const removePurchasePayment = async (
   purchase.paymentInfo = updatedPaymentInfo;
   await purchase.save();
   return purchase;
+};
+
+export const getPurchaseHistoryWithVendor = async (
+  vendorId: mongoose.Types.ObjectId,
+  businessId: mongoose.Types.ObjectId
+) => {
+  return getPurchasesWithMatchQuery({
+    vendorId,
+    businessId,
+  });
 };

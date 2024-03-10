@@ -9,17 +9,28 @@ import { sanitizeItemParams } from '../item/item.service';
 import { ICombinationItem } from '../item/item.interfaces';
 import { getAddRemoveEditArrays, parseToInteger, stringifyObjectId } from '../utils/common';
 
-export const findWastagesByFilterQuery = async (filterQuery: FilterQuery<IWastageDoc>): Promise<IWastageDoc[]> =>
+export const getWastagesWithMatchQuery = (matchQuery: FilterQuery<IWastageDoc>): Promise<IWastageDoc[]> => {
+  return Wastage.aggregate([
+    {
+      $match: matchQuery,
+    },
+  ]);
+};
+
+export const getWastagesByBusinessId = (businessId: mongoose.Types.ObjectId): Promise<IWastageDoc[]> =>
+  getWastagesWithMatchQuery({ businessId });
+
+export const findWastagesByFilterQuery = (filterQuery: FilterQuery<IWastageDoc>): Promise<IWastageDoc[]> =>
   Wastage.find(filterQuery);
 
-export const findWastageById = async (wastageId: mongoose.Types.ObjectId): Promise<IWastageDoc | null> =>
+export const findWastageById = (wastageId: mongoose.Types.ObjectId): Promise<IWastageDoc | null> =>
   Wastage.findById(wastageId);
 
-export const findWastageByFilterQuery = async (filterQuery: FilterQuery<IWastageDoc>): Promise<IWastageDoc | null> =>
+export const findWastageByFilterQuery = (filterQuery: FilterQuery<IWastageDoc>): Promise<IWastageDoc | null> =>
   Wastage.findOne(filterQuery);
 
 export const createWastage = async (createWastageBody: NewWastage) => {
-  const items = await sanitizeItemParams(createWastageBody.items, false, false, false);
+  const items = await sanitizeItemParams(createWastageBody.items, false, false, true);
   const copiedWastageBody = { ...createWastageBody };
   copiedWastageBody.items = items;
 
@@ -96,7 +107,7 @@ export const updateWastageById = async (wastageId: mongoose.Types.ObjectId, upda
   const updatedItems = getUpdatedItemsForWastage(wastage.items, updateWastageBody.items);
 
   Object.assign(wastage, { ...updateWastageBody, items: updatedItems });
-  // await wastage.save();
+  await wastage.save();
 
   return wastage;
 };
@@ -118,4 +129,102 @@ export const deleteWastageById = async (queryWastageIds: string, businessId?: mo
   // // update inventory
 
   await Wastage.deleteMany(matchQuery);
+};
+
+export const getWastagesByDate = (businessId: mongoose.Types.ObjectId) => {
+  return Wastage.aggregate([
+    {
+      $match: { businessId },
+    },
+    {
+      $unwind: '$items',
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+        items: { $push: '$items' },
+        itemNames: { $addToSet: '$items.name' },
+        amount: {
+          $sum: {
+            $gt: ['$items.price', 0],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        date: '$_id',
+        items: {
+          $map: {
+            input: '$items',
+            as: 'item',
+            in: {
+              _id: '$$item._id',
+              name: '$$item.name',
+              quantity: '$$item.quantity',
+              quantityMetric: '$$item.quantityMetric',
+              price: {
+                $gt: ['$$item.price', 0],
+              },
+            },
+          },
+        },
+        itemNames: 1,
+        amount: 1,
+      },
+    },
+    {
+      $sort: {
+        date: 1,
+      },
+    },
+  ]);
+};
+
+export const getWastagesByItem = async (businessId: mongoose.Types.ObjectId) => {
+  return Wastage.aggregate([
+    {
+      $match: { businessId },
+    },
+    {
+      $unwind: '$items',
+    },
+    {
+      $project: {
+        itemInfo: {
+          _id: '$items._id',
+          name: '$items.name',
+        },
+        dateAndQuantityInfo: {
+          date: '$date',
+          quantity: '$items.quantity',
+          quantityMetric: '$items.quantityMetric',
+          price: {
+            $gt: ['$items.price', 0],
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$itemInfo',
+        quantityInfo: { $push: '$dateAndQuantityInfo' },
+        amount: { $sum: '$dateAndQuantityInfo.price' },
+      },
+    },
+    {
+      $project: {
+        _id: '$_id._id',
+        name: '$_id.name',
+        dateAndQuantityInfo: 1,
+        amount: 1,
+      },
+    },
+    {
+      $sort: {
+        name: 1,
+      },
+    },
+  ]);
 };

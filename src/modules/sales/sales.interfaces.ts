@@ -1,23 +1,6 @@
 import mongoose, { Document, Model } from 'mongoose';
-import { PaymentMethod, PaymentStatus } from '../../config/enums';
 import { ICombinationItem } from '../item/item.interfaces';
-
-export interface IPayment {
-  _id: mongoose.Types.ObjectId;
-  name?: string;
-  amount: number;
-  method?: PaymentMethod;
-  date: Date;
-}
-
-export interface IPaymentInfo {
-  status: PaymentStatus;
-  total: number;
-  paid: number;
-  remaining: number;
-  returned: number;
-  payments: IPayment[];
-}
+import { IPayment, IPaymentInfo } from '../purchase/purchase.interfaces';
 
 export interface ISales {
   businessId: mongoose.Types.ObjectId;

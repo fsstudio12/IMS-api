@@ -13,7 +13,7 @@ export const getBusinessesHandler = catchAsync(async (req: Request, res: Respons
   const filter = pick(req.query, ['name', 'email']);
   const options: IOptions = pick(req.query, ['sortBy', 'limit', 'page', 'projectBy']);
   const results = await businessService.queryBusinesses(filter, options);
-  res.send(createSuccessResponse(results));
+  res.send(createSuccessResponse({ results }));
 });
 
 export const getBusinessHandler = catchAsync(async (req: Request, res: Response) => {

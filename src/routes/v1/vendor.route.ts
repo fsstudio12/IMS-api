@@ -16,4 +16,8 @@ router
   .patch(auth(), validate(vendorValidation.updateVendorSchema), vendorController.updateVendorHandler)
   .delete(auth(), validate(vendorValidation.deleteVendorSchema), vendorController.deleteVendorHandler);
 
+router
+  .route('/history/:vendorId')
+  .get(auth(), validate(vendorValidation.getVendorSchema), vendorController.getVendorHistoryHandler);
+
 export default router;
