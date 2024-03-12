@@ -12,8 +12,8 @@ router
 
 router
   .route('/:designationId')
-  .get(auth(), validate(designationValidation.getDesignationSchema), designationController.getDesignationHandler);
-// .patch(auth(), validate(designationValidation.updateDesignationSchema), designationController.)
-// .delete(auth(), validate(designationValidation.deleteDesignationSchema), designationController.deleteDesignationHandler);
+  .get(auth(), validate(designationValidation.getDesignationSchema), designationController.getDesignationHandler)
+  .patch(auth(), validate(designationValidation.updateDesignationSchema), designationController.updateDesignationHandler)
+  .delete(auth(), validate(designationValidation.deleteDesignationSchema), designationController.deleteDesignationHandler);
 
 export default router;

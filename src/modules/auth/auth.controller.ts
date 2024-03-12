@@ -5,7 +5,7 @@ import catchAsync from '../utils/catchAsync';
 import config from '../../config/config';
 
 import { tokenService } from '../token';
-import { userService } from '../user';
+import { employeeService } from '../employee';
 import * as authService from './auth.service';
 import { emailService } from '../email';
 import createSuccessResponse from '../success/SuccessResponse';
@@ -16,16 +16,16 @@ import { ApiError } from '../errors';
 export const registerHandler = catchAsync(async (req: Request, res: Response) => {
   await runInTransaction(async (session: ClientSession) => {
     const business = await businessService.createBusiness(req.body, session);
-    const user = await userService.registerUser({ ...req.body, businessId: business._id }, session);
-    res.status(httpStatus.CREATED).send({ user });
+    const employee = await employeeService.registerEmployee({ ...req.body, businessId: business._id }, session);
+    res.status(httpStatus.CREATED).send({ employee });
   });
 });
 
 export const loginHandler = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const tokens = await tokenService.generateAuthTokens(user);
-  res.send(createSuccessResponse({ user, tokens }, 'Successfully logged in.'));
+  const employee = await authService.loginEmployeeWithEmailAndPassword(email, password);
+  const tokens = await tokenService.generateAuthTokens(employee);
+  res.send(createSuccessResponse({ employee, tokens }, 'Successfully logged in.'));
 });
 
 export const logoutHandler = catchAsync(async (req: Request, res: Response) => {
@@ -34,8 +34,8 @@ export const logoutHandler = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const refreshTokensHandler = catchAsync(async (req: Request, res: Response) => {
-  const userWithTokens = await authService.refreshAuth(req.body.refreshToken);
-  res.send(createSuccessResponse({ ...userWithTokens }));
+  const employeeWithTokens = await authService.refreshAuth(req.body.refreshToken);
+  res.send(createSuccessResponse({ ...employeeWithTokens }));
 });
 
 export const forgotPasswordHandler = catchAsync(async (req: Request, res: Response) => {
@@ -55,10 +55,10 @@ export const resetPasswordHandler = catchAsync(async (req: Request, res: Respons
 });
 
 export const sendVerificationEmailHandler = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user.isEmailVerified) {
+  if (!req.employee.isEmailVerified) {
     await runInTransaction(async (session: ClientSession) => {
-      const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user, session);
-      await emailService.sendVerificationEmail(req.user.email, verifyEmailToken, req.user.name);
+      const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.employee, session);
+      await emailService.sendVerificationEmail(req.employee.email, verifyEmailToken, req.employee.name);
 
       res
         .status(config.env === 'development' ? httpStatus.OK : httpStatus.NO_CONTENT)

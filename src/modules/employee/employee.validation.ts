@@ -1,8 +1,8 @@
 import Joi from 'joi';
 import { objectId } from '../validate/custom.validation';
-import { NewCreatedUser } from './user.interfaces';
+import { NewCreatedEmployee } from './employee.interfaces';
 
-const createUserBodySchema: Record<keyof NewCreatedUser, any> = {
+const createEmployeeBodySchema: Record<keyof NewCreatedEmployee, any> = {
   name: Joi.string().required(),
   email: Joi.string().required().email(),
   // password: Joi.string().required().custom(password),
@@ -11,11 +11,11 @@ const createUserBodySchema: Record<keyof NewCreatedUser, any> = {
   phone: Joi.string().optional(),
 };
 
-export const createUserSchema = {
-  body: Joi.object().keys(createUserBodySchema),
+export const createEmployeeSchema = {
+  body: Joi.object().keys(createEmployeeBodySchema),
 };
 
-export const getUsersSchema = {
+export const getEmployeesSchema = {
   query: Joi.object().keys({
     name: Joi.string(),
     role: Joi.string(),
@@ -26,15 +26,15 @@ export const getUsersSchema = {
   }),
 };
 
-export const getUserSchema = {
+export const getEmployeeSchema = {
   params: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
+    employeeId: Joi.string().custom(objectId),
   }),
 };
 
-export const updateUserSchema = {
+export const updateEmployeeSchema = {
   params: Joi.object().keys({
-    userId: Joi.required().custom(objectId),
+    employeeId: Joi.required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
@@ -46,8 +46,8 @@ export const updateUserSchema = {
     .min(1),
 };
 
-export const deleteUserSchema = {
+export const deleteEmployeeSchema = {
   params: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
+    employeeId: Joi.string().custom(objectId),
   }),
 };

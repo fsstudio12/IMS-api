@@ -3,22 +3,23 @@ import passport from 'passport';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import { roleRights } from '../../config/roles';
-import { IUserDoc } from '../user/user.interfaces';
+import { IEmployeeDoc } from '../employee/employee.interfaces';
 import { VerifyCallback } from './auth.interface';
 
 const verifyCallback: VerifyCallback =
   (req: Request, resolve: any, reject: any, requiredRights: string[]) =>
-  async (err: Error, user: IUserDoc, info: string) => {
-    if (err || info || !user) {
+  async (err: Error, employee: IEmployeeDoc, info: string) => {
+    if (err || info || !employee) {
       return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
     }
-    req.user = user;
 
-    if (user.role !== 'super_admin' && requiredRights.length) {
-      const userRights = roleRights.get(user.role);
-      if (!userRights) return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
-      const hasRequiredRights = requiredRights.every((requiredRight: string) => userRights.includes(requiredRight));
-      if (!hasRequiredRights && req.params['userId'] !== user.id) {
+    req.employee = employee;
+
+    if (employee.role !== 'super_admin' && requiredRights.length) {
+      const employeeRights = roleRights.get(employee.role);
+      if (!employeeRights) return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
+      const hasRequiredRights = requiredRights.every((requiredRight: string) => employeeRights.includes(requiredRight));
+      if (!hasRequiredRights && req.params['employeeId'] !== employee.id) {
         return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
       }
     }

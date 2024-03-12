@@ -9,8 +9,8 @@ import tokenTypes from '../token/token.types';
 import * as tokenService from '../token/token.service';
 import app from '../../app';
 import setupTestDB from '../jest/setupTestDB';
-import User from './user.model';
-import { NewCreatedUser } from './user.interfaces';
+import User from './employee.model';
+import { NewCreatedUser } from './employee.interfaces';
 
 setupTestDB();
 

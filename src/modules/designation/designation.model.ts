@@ -3,11 +3,12 @@ import { IDesignationDoc, IDesignationModel } from './designation.interfaces';
 import Resource from '../../config/resources';
 import Action from '../../config/actions';
 
-const permissionsSchema: { [key in Resource]: { type: string; enum: Action[] } } = {} as any;
+const permissionsSchema: any = {};
 
 Object.values(Resource).forEach((resource: Resource) => {
-  permissionsSchema[resource] = { type: 'String', enum: Object.values(Action) };
+  permissionsSchema[resource] = { type: [String], enum: Action };
 });
+
 const designationSchema = new mongoose.Schema<IDesignationDoc, IDesignationModel>(
   {
     businessId: { type: mongoose.Schema.Types.ObjectId },

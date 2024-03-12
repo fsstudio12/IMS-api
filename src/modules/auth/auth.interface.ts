@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-import { IUserDoc } from '../user/user.interfaces';
+import { IUserDoc } from '../employee/employee.interfaces';
 
 export type VerifyCallback = (
   req: Request,

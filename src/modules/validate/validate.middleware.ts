@@ -7,7 +7,6 @@ import ApiError from '../errors/ApiError';
 const validate =
   (schema: Record<string, any>) =>
   (req: Request, _res: Response, next: NextFunction): void => {
-    // console.log(req.body);
     const validSchema = pick(schema, ['params', 'query', 'body']);
     const object = pick(req, Object.keys(validSchema));
     const { value, error } = Joi.compile(validSchema)

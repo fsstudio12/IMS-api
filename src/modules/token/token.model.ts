@@ -10,9 +10,9 @@ const tokenSchema = new mongoose.Schema<ITokenDoc, ITokenModel>(
       required: true,
       index: true,
     },
-    user: {
+    employee: {
       type: String,
-      ref: 'User',
+      ref: 'Employee',
       required: true,
     },
     type: {

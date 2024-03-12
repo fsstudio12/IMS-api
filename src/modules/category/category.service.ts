@@ -4,7 +4,7 @@ import ApiError from '../errors/ApiError';
 import Category from './category.model';
 import { ICategoryDoc, NewCategory, UpdateCategory } from './category.interfaces';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { IUserDoc } from '../user/user.interfaces';
+import { IUserDoc } from '../employee/employee.interfaces';
 import { stringifyObjectId } from '../utils/common';
 
 /**

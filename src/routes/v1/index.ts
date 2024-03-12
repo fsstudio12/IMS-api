@@ -9,11 +9,11 @@ import businessRoute from './business.route';
 import categoryRoute from './category.route';
 import customerRoute from './customer.route';
 import designationRoute from './designation.route';
+import employeeRoute from './employee.route';
 import itemRoute from './item.route';
 import purchaseRoute from './purchase.route';
 import recipeRoute from './recipe.route';
 import salesRoute from './sales.route';
-import userRoute from './user.route';
 import vendorRoute from './vendor.route';
 import wastageRoute from './wastage.route';
 
@@ -50,6 +50,10 @@ const defaultIRoute: IRoute[] = [
     route: designationRoute,
   },
   {
+    path: '/employees',
+    route: employeeRoute,
+  },
+  {
     path: '/items',
     route: itemRoute,
   },
@@ -64,10 +68,6 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/sales',
     route: salesRoute,
-  },
-  {
-    path: '/users',
-    route: userRoute,
   },
   {
     path: '/vendors',

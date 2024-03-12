@@ -1,39 +1,51 @@
 import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
-import { userController, userValidation } from '../../modules/user';
+import { employeeController, employeeValidation } from '../../modules/employee';
 
 const router: Router = express.Router();
 
 router
   .route('/')
-  .get(auth('getOwnEmployees'), validate(userValidation.getUsersSchema), userController.getUsersHandler)
-  .post(auth('manageOwnEmployees'), validate(userValidation.createUserSchema), userController.createUserHandler);
+  .get(auth('getOwnEmployees'), validate(employeeValidation.getEmployeesSchema), employeeController.getEmployeesHandler)
+  .post(
+    auth('manageOwnEmployees'),
+    validate(employeeValidation.createEmployeeSchema),
+    employeeController.createEmployeeHandler
+  );
 
 router
-  .route('/:userId')
-  .get(auth('getOwnEmployees'), validate(userValidation.getUserSchema), userController.getUserHandler)
-  .patch(auth('manageOwnEmployees'), validate(userValidation.updateUserSchema), userController.updateUserHandler)
-  .delete(auth('manageOwnEmployees'), validate(userValidation.deleteUserSchema), userController.deleteUserHandler);
+  .route('/:employeeId')
+  .get(auth('getOwnEmployees'), validate(employeeValidation.getEmployeeSchema), employeeController.getEmployeeHandler)
+  .patch(
+    auth('manageOwnEmployees'),
+    validate(employeeValidation.updateEmployeeSchema),
+    employeeController.updateEmployeeHandler
+  )
+  .delete(
+    auth('manageOwnEmployees'),
+    validate(employeeValidation.deleteEmployeeSchema),
+    employeeController.deleteEmployeeHandler
+  );
 
-// router.route('/own/all').get(auth('getOwnEmployees'), userController.getUsersHandler);
+// router.route('/own/all').get(auth('getOwnEmployees'), employeeController.getEmployeesHandler);
 
 export default router;
 
 /**
  * @swagger
  * tags:
- *   name: Users
- *   description: User management and retrieval
+ *   name: Employees
+ *   description: Employee management and retrieval
  */
 
 /**
  * @swagger
- * /users:
+ * /employees:
  *   post:
- *     summary: Create a user
- *     description: Only admins can create other users.
- *     tags: [Users]
+ *     summary: Create a employee
+ *     description: Only admins can create other employees.
+ *     tags: [Employees]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -61,7 +73,7 @@ export default router;
  *                 description: At least one number and one letter
  *               role:
  *                  type: string
- *                  enum: [user, admin]
+ *                  enum: [employee, admin]
  *             example:
  *               name: fake name
  *               email: fake@example.com
@@ -73,7 +85,7 @@ export default router;
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Employee'
  *       "400":
  *         $ref: '#/components/responses/DuplicateEmail'
  *       "401":
@@ -82,9 +94,9 @@ export default router;
  *         $ref: '#/components/responses/Forbidden'
  *
  *   get:
- *     summary: Get all users
- *     description: Only admins can retrieve all users.
- *     tags: [Users]
+ *     summary: Get all employees
+ *     description: Only admins can retrieve all employees.
+ *     tags: [Employees]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -92,12 +104,12 @@ export default router;
  *         name: name
  *         schema:
  *           type: string
- *         description: User name
+ *         description: Employee name
  *       - in: query
  *         name: role
  *         schema:
  *           type: string
- *         description: User role
+ *         description: Employee role
  *       - in: query
  *         name: sortBy
  *         schema:
@@ -114,7 +126,7 @@ export default router;
  *           type: integer
  *           minimum: 1
  *         default: 10
- *         description: Maximum number of users
+ *         description: Maximum number of employees
  *       - in: query
  *         name: page
  *         schema:
@@ -133,7 +145,7 @@ export default router;
  *                 results:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/User'
+ *                     $ref: '#/components/schemas/Employee'
  *                 page:
  *                   type: integer
  *                   example: 1
@@ -154,11 +166,11 @@ export default router;
 
 /**
  * @swagger
- * /users/{id}:
+ * /employees/{id}:
  *   get:
- *     summary: Get a user
- *     description: Logged in users can fetch only their own user information. Only admins can fetch other users.
- *     tags: [Users]
+ *     summary: Get a employee
+ *     description: Logged in employees can fetch only their own employee information. Only admins can fetch other employees.
+ *     tags: [Employees]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -167,14 +179,14 @@ export default router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Employee id
  *     responses:
  *       "200":
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Employee'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
@@ -183,9 +195,9 @@ export default router;
  *         $ref: '#/components/responses/NotFound'
  *
  *   patch:
- *     summary: Update a user
- *     description: Logged in users can only update their own information. Only admins can update other users.
- *     tags: [Users]
+ *     summary: Update a employee
+ *     description: Logged in employees can only update their own information. Only admins can update other employees.
+ *     tags: [Employees]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -194,7 +206,7 @@ export default router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Employee id
  *     requestBody:
  *       required: true
  *       content:
@@ -223,7 +235,7 @@ export default router;
  *         content:
  *           application/json:
  *             schema:
- *                $ref: '#/components/schemas/User'
+ *                $ref: '#/components/schemas/Employee'
  *       "400":
  *         $ref: '#/components/responses/DuplicateEmail'
  *       "401":
@@ -234,9 +246,9 @@ export default router;
  *         $ref: '#/components/responses/NotFound'
  *
  *   delete:
- *     summary: Delete a user
- *     description: Logged in users can delete only themselves. Only admins can delete other users.
- *     tags: [Users]
+ *     summary: Delete a employee
+ *     description: Logged in employees can delete only themselves. Only admins can delete other employees.
+ *     tags: [Employees]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -245,7 +257,7 @@ export default router;
  *         required: true
  *         schema:
  *           type: string
- *         description: User id
+ *         description: Employee id
  *     responses:
  *       "200":
  *         description: No content

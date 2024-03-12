@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import Designation from './designation.model';
 import { IDesignation, IDesignationDoc } from './designation.interfaces';
+import { splitFromQuery } from '../utils/common';
 
 export const getDesignationsWithMatchQuery = async (
   matchQuery: FilterQuery<IDesignationDoc>
@@ -54,10 +55,54 @@ export const updateDesignationById = async (
   return designation;
 };
 
-export const deleteDesignationById = async (designationId: mongoose.Types.ObjectId): Promise<IDesignationDoc | null> => {
-  const designation = await findDesignationById(designationId);
-  if (!designation) throw new ApiError(httpStatus.NOT_FOUND, 'Designation not found.');
+export const deleteDesignationsById = async (
+  queryDesignationIds: string,
+  businessId?: mongoose.Types.ObjectId
+): Promise<void> => {
+  const designationIds = splitFromQuery(queryDesignationIds);
+  const mappedDesignationIds = designationIds.map((designationId: string) => {
+    return new mongoose.Types.ObjectId(designationId);
+  });
 
-  await designation.deleteOne();
-  return designation;
+  const matchQuery: FilterQuery<IDesignationDoc> = {
+    _id: { $in: mappedDesignationIds },
+  };
+
+  if (businessId) {
+    matchQuery.businessId = businessId;
+  }
+
+  // const employeesToUpdate = (
+  //   await Designation.aggregate([
+  //     {
+  //       $match: {
+  //         $in: mappedDesignationIds,
+  //       },
+  //     },
+  //     {
+  //       $lookup: {
+  //         from: 'employees',
+  //         localField: '_id',
+  //         foreignField: 'designationId',
+  //         as: 'employees',
+  //         pipeline: [
+  //           {
+  //             $project: {
+  //               _id: 1,
+  //               name: 1,
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   ])
+  // ).map((employee: any) => employee._id);
+
+  await Designation.deleteMany(matchQuery);
 };
+
+// export const createAdminDesignationForBusiness = (businessId: mongoose.Types.ObjectId) => {
+//   // const createDesignation({
+
+//   // })
+// }

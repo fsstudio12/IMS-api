@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
-import { findUserById } from '../user/user.service';
+import { findUserById } from '../employee/employee.service';
 import { ApiError } from '../errors';
 
 export const toggleVerifyUser = async (userId: mongoose.Types.ObjectId) => {

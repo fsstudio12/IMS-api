@@ -1,7 +1,7 @@
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import tokenTypes from '../token/token.types';
 import config from '../../config/config';
-import User from '../user/user.model';
+import User from '../employee/employee.model';
 import { IPayload } from '../token/token.interfaces';
 
 const jwtStrategy = new JwtStrategy(

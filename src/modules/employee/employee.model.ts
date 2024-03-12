@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs';
 import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
 import { roles } from '../../config/roles';
-import { IUserDoc, IUserModel } from './user.interfaces';
+import { IEmployeeDoc, IEmployeeModel } from './employee.interfaces';
 
-const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
+const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
   {
     name: {
       type: String,
@@ -65,38 +65,41 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
 );
 
 // add plugin that converts mongoose to json
-userSchema.plugin(toJSON);
-userSchema.plugin(paginate);
+employeeSchema.plugin(toJSON);
+employeeSchema.plugin(paginate);
 
 /**
  * Check if email is taken
- * @param {string} email - The user's email
- * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
+ * @param {string} email - The employee's email
+ * @param {ObjectId} [excludeEmployeeId] - The id of the employee to be excluded
  * @returns {Promise<boolean>}
  */
-userSchema.static('isEmailTaken', async function (email: string, excludeUserId: mongoose.ObjectId): Promise<boolean> {
-  const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-  return !!user;
-});
+employeeSchema.static(
+  'isEmailTaken',
+  async function (email: string, excludeEmployeeId: mongoose.ObjectId): Promise<boolean> {
+    const employee = await this.findOne({ email, _id: { $ne: excludeEmployeeId } });
+    return !!employee;
+  }
+);
 
 /**
- * Check if password matches the user's password
+ * Check if password matches the employee's password
  * @param {string} password
  * @returns {Promise<boolean>}
  */
-userSchema.method('isPasswordMatch', async function (password: string): Promise<boolean> {
-  const user = this;
-  return bcrypt.compare(password, user.password);
+employeeSchema.method('isPasswordMatch', async function (password: string): Promise<boolean> {
+  const employee = this;
+  return bcrypt.compare(password, employee.password);
 });
 
-userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
+employeeSchema.pre('save', async function (next) {
+  const employee = this;
+  if (employee.isModified('password')) {
+    employee.password = await bcrypt.hash(employee.password, 8);
   }
   next();
 });
 
-const User = mongoose.model<IUserDoc, IUserModel>('User', userSchema);
+const Employee = mongoose.model<IEmployeeDoc, IEmployeeModel>('Employee', employeeSchema);
 
-export default User;
+export default Employee;
