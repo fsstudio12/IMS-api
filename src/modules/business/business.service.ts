@@ -4,7 +4,7 @@ import { ApiError } from '../errors';
 import { IBusinessDoc, NewBusiness, UpdateBusiness } from './business.interfaces';
 import Business from './business.model';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { User } from '../employee';
+import { Employee } from '../employee';
 
 export const createBusiness = async (businessBody: NewBusiness, session: ClientSession | null): Promise<IBusinessDoc> => {
   if (await Business.isNameTaken(businessBody.name))
@@ -54,7 +54,7 @@ export const deleteBusinessById = async (
   if (!business) throw new ApiError(httpStatus.NOT_FOUND, 'Business not found.');
 
   await Promise.all([
-    User.deleteMany(
+    Employee.deleteMany(
       {
         businessId,
       },

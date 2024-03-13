@@ -10,6 +10,8 @@ router
   .get(auth(), designationController.getDesignationsHandler)
   .post(auth(), validate(designationValidation.createDesignationSchema), designationController.createDesignationHandler);
 
+router.post('/admin', designationController.createBusinessAdminHandler);
+
 router
   .route('/:designationId')
   .get(auth(), validate(designationValidation.getDesignationSchema), designationController.getDesignationHandler)

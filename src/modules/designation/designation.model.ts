@@ -12,7 +12,7 @@ Object.values(Resource).forEach((resource: Resource) => {
 const designationSchema = new mongoose.Schema<IDesignationDoc, IDesignationModel>(
   {
     businessId: { type: mongoose.Schema.Types.ObjectId },
-    name: { type: String, required: true },
+    title: { type: String, required: true },
     permissions: permissionsSchema,
   },
   {
@@ -21,20 +21,20 @@ const designationSchema = new mongoose.Schema<IDesignationDoc, IDesignationModel
 );
 
 /**
- * Check if designation name is taken
- * @param {string} name - The designation's name
+ * Check if designation title is taken
+ * @param {string} title - The designation's title
  * @param {ObjectId} [excludeDesignationId] - The id of the designation to be excluded
  * @returns {Promise<boolean>}
  */
 designationSchema.static(
-  'isNameTaken',
-  async function isNameTaken(
-    name: string,
+  'isTitleTaken',
+  async function isTitleTaken(
+    title: string,
     businessId: mongoose.Types.ObjectId,
     excludeDesignationId?: mongoose.Types.ObjectId
   ): Promise<boolean> {
     const designation = await this.findOne({
-      name,
+      title,
       businessId,
       _id: {
         $ne: excludeDesignationId,

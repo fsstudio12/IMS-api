@@ -71,7 +71,7 @@ export const removeSalesPaymentHandler = catchAsync(async (req: Request, res: Re
 
 export const deleteSalesHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['salesId'] === 'string') {
-    await salesService.deleteSales(req.params['salesId'], req.user.businessId);
+    await salesService.deleteSales(req.params['salesId'], req.employee.businessId);
     res.send(createSuccessResponse());
   }
 });

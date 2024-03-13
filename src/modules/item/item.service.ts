@@ -78,7 +78,7 @@ const validationForCreateItem = async (itemBody: NewItem): Promise<void> => {
   if (await Item.isNameTaken(itemBody.name, itemBody.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item with the entered name already exists.');
 
-  if (itemBody.isSellable && !itemBody.price)
+  if (itemBody.isSellable && !!itemBody.price)
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
 
   if (!itemBody.isSellable && itemBody.price)

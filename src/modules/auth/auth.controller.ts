@@ -12,11 +12,16 @@ import createSuccessResponse from '../success/SuccessResponse';
 import { businessService } from '../business';
 import runInTransaction from '../utils/transactionWrapper';
 import { ApiError } from '../errors';
+import { designationService } from '../designation';
 
 export const registerHandler = catchAsync(async (req: Request, res: Response) => {
   await runInTransaction(async (session: ClientSession) => {
     const business = await businessService.createBusiness(req.body, session);
-    const employee = await employeeService.registerEmployee({ ...req.body, businessId: business._id }, session);
+    const adminDesignation = await designationService.createAdminDesignationForBusiness(business._id, session);
+    const employee = await employeeService.registerEmployee(
+      { ...req.body, businessId: business._id, designationId: adminDesignation._id },
+      session
+    );
     res.status(httpStatus.CREATED).send({ employee });
   });
 });

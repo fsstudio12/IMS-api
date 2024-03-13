@@ -58,6 +58,10 @@ const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Business',
     },
+    designationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Designation',
+    },
   },
   {
     timestamps: true,

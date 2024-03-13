@@ -9,7 +9,7 @@ export interface IResourceAction {
 
 export interface IDesignation {
   businessId: mongoose.Types.ObjectId;
-  name: string;
+  title: string;
   permissions: {
     [resource in Resources]: Actions[];
   };
@@ -18,8 +18,8 @@ export interface IDesignation {
 export interface IDesignationDoc extends IDesignation, Document {}
 
 export interface IDesignationModel extends Model<IDesignationDoc> {
-  isNameTaken(
-    name: string,
+  isTitleTaken(
+    title: string,
     businessId: mongoose.Types.ObjectId,
     excludeDesignationId?: mongoose.Types.ObjectId
   ): Promise<boolean>;

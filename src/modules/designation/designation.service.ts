@@ -1,9 +1,11 @@
-import mongoose, { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery, ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import Designation from './designation.model';
 import { IDesignation, IDesignationDoc } from './designation.interfaces';
 import { splitFromQuery } from '../utils/common';
+import Resource from '../../config/resources';
+import Action from '../../config/actions';
 
 export const getDesignationsWithMatchQuery = async (
   matchQuery: FilterQuery<IDesignationDoc>
@@ -33,11 +35,19 @@ export const findDesignationByFilterQuery = async (
  * @param {NewDesignation} createDesignationBody
  * @returns {Promise<IDesignationDoc>}
  */
-export const createDesignation = async (createDesignationBody: IDesignation): Promise<IDesignationDoc> => {
-  if (await Designation.isNameTaken(createDesignationBody.name, createDesignationBody.businessId))
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Designation with the entered name already exists.');
+export const createDesignation = async (
+  createDesignationBody: IDesignation,
+  session: ClientSession | null
+): Promise<IDesignationDoc> => {
+  if (await Designation.isTitleTaken(createDesignationBody.title, createDesignationBody.businessId))
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Designation with the entered title already exists.');
 
-  return Designation.create(createDesignationBody);
+  const options = session ? { session } : undefined;
+
+  const [designation] = await Designation.create([createDesignationBody], options);
+  if (!designation) throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong.');
+
+  return designation;
 };
 
 export const updateDesignationById = async (
@@ -47,8 +57,8 @@ export const updateDesignationById = async (
   const designation = await findDesignationById(designationId);
   if (!designation) throw new ApiError(httpStatus.NOT_FOUND, 'Designation not found.');
 
-  if (await Designation.isNameTaken(updateDesignationBody.name, updateDesignationBody.businessId, designation._id))
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Another designation with the entered name already exists.');
+  if (await Designation.isTitleTaken(updateDesignationBody.title, updateDesignationBody.businessId, designation._id))
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Another designation with the entered title already exists.');
 
   Object.assign(designation, updateDesignationBody);
   await designation.save();
@@ -89,7 +99,7 @@ export const deleteDesignationsById = async (
   //           {
   //             $project: {
   //               _id: 1,
-  //               name: 1,
+  //               title: 1,
   //             },
   //           },
   //         ],
@@ -101,8 +111,23 @@ export const deleteDesignationsById = async (
   await Designation.deleteMany(matchQuery);
 };
 
-// export const createAdminDesignationForBusiness = (businessId: mongoose.Types.ObjectId) => {
-//   // const createDesignation({
+export const createAdminDesignationForBusiness = async (
+  businessId: mongoose.Types.ObjectId,
+  session: ClientSession | null
+): Promise<IDesignationDoc> => {
+  const adminPermissions: any = {};
+  for (const resource of Object.values(Resource)) {
+    adminPermissions[resource] = [Action.ALL];
+  }
 
-//   // })
-// }
+  const designation = await createDesignation(
+    {
+      title: 'Admin',
+      permissions: adminPermissions,
+      businessId,
+    },
+    session
+  );
+
+  return designation;
+};

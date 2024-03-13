@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 
-import { catchAsync, extractBusinessId } from '../utils';
+import { catchAsync, extractBusinessId, runInTransaction } from '../utils';
 import {
+  createAdminDesignationForBusiness,
   createDesignation,
   deleteDesignationsById,
   findDesignationById,
@@ -15,7 +16,7 @@ import { ApiError } from '../errors';
 
 export const getDesignationsHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
-  console.log('🚀 ~ getDesignationsHandler ~ businessId:', businessId);
+  console.log('🚀 ~ getDesignationsHandler ~ businessId:', req.employee);
   const designations = await getDesignationsByBusinessId(businessId);
   res.send(createSuccessResponse({ designations }));
 });
@@ -30,7 +31,7 @@ export const getDesignationHandler = catchAsync(async (req: Request, res: Respon
 
 export const createDesignationHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
-  const designation = await createDesignation({ ...req.body, businessId });
+  const designation = await createDesignation({ ...req.body, businessId }, null);
   res.status(httpStatus.CREATED).send(createSuccessResponse({ designation }));
 });
 
@@ -50,4 +51,12 @@ export const deleteDesignationHandler = catchAsync(async (req: Request, res: Res
     await deleteDesignationsById(req.query['designationId']);
     res.send(createSuccessResponse());
   }
+});
+
+export const createBusinessAdminHandler = catchAsync(async (req: Request, res: Response) => {
+  const { businessId } = req.body;
+  await runInTransaction(async (session: ClientSession) => {
+    const adminDesignation = await createAdminDesignationForBusiness(new mongoose.Types.ObjectId(businessId), session);
+    res.send(createSuccessResponse({ adminDesignation }));
+  });
 });

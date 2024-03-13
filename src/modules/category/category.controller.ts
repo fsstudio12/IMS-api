@@ -31,7 +31,7 @@ export const updateCategoryHandler = catchAsync(async (req: Request, res: Respon
   if (typeof req.params['categoryId'] === 'string') {
     const category = await categoryService.updateCategoryById(
       new mongoose.Types.ObjectId(req.params['categoryId']),
-      req.user,
+      req.employee,
       req.body
     );
     res.send(createSuccessResponse({ category }));
@@ -40,7 +40,7 @@ export const updateCategoryHandler = catchAsync(async (req: Request, res: Respon
 
 export const deleteCategoryHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['categoryId'] === 'string') {
-    await categoryService.deleteCategoryById(new mongoose.Types.ObjectId(req.params['categoryId']), req.user);
+    await categoryService.deleteCategoryById(new mongoose.Types.ObjectId(req.params['categoryId']), req.employee);
     res.status(NO_CONTENT).send();
   }
 });

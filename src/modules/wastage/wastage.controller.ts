@@ -38,7 +38,7 @@ export const updateWastageHandler = catchAsync(async (req: Request, res: Respons
 
 export const deleteWastageHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['wastageId'] === 'string') {
-    await wastageService.deleteWastageById(req.params['wastageId'], req.user.businessId);
+    await wastageService.deleteWastageById(req.params['wastageId'], req.employee.businessId);
     res.send(createSuccessResponse());
   }
 });

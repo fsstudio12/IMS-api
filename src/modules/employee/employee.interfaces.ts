@@ -4,6 +4,7 @@ import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 export interface IEmployee {
   businessId: mongoose.Types.ObjectId;
+  designationId: mongoose.Types.ObjectId;
   name: string;
   email: string;
   phone: string;

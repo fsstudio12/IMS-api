@@ -44,7 +44,8 @@ export const updateRecipeHandler = catchAsync(async (req: Request, res: Response
 
 export const deleteRecipeHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.query['recipeId'] === 'string') {
-    await recipeService.deleteRecipesById(req.query['recipeId'], req.user.businessId);
+    const businessId = extractBusinessId(req);
+    await recipeService.deleteRecipesById(req.query['recipeId'], businessId);
     res.send(createSuccessResponse());
   }
 });

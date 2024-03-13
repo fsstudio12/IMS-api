@@ -45,7 +45,7 @@ export const updateCustomerHandler = catchAsync(async (req: Request, res: Respon
 
 export const deleteCustomerHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['customerId'] === 'string') {
-    await customerService.deleteCustomersById(req.params['customerId'], req.user.businessId);
+    await customerService.deleteCustomersById(req.params['customerId'], req.employee.businessId);
     res.send(createSuccessResponse());
   }
 });

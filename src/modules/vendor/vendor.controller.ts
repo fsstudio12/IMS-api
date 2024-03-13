@@ -45,7 +45,7 @@ export const updateVendorHandler = catchAsync(async (req: Request, res: Response
 
 export const deleteVendorHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['vendorId'] === 'string') {
-    await vendorService.deleteVendorById(req.params['vendorId'], req.user.businessId);
+    await vendorService.deleteVendorById(req.params['vendorId'], req.employee.businessId);
     res.send(createSuccessResponse());
   }
 });
