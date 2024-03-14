@@ -17,11 +17,7 @@ router
 router
   .route('/:employeeId')
   .get(auth('getOwnEmployees'), validate(employeeValidation.getEmployeeSchema), employeeController.getEmployeeHandler)
-  .patch(
-    auth('manageOwnEmployees'),
-    validate(employeeValidation.updateEmployeeSchema),
-    employeeController.updateEmployeeHandler
-  )
+  .patch(auth(), validate(employeeValidation.updateEmployeeSchema), employeeController.updateEmployeeHandler)
   .delete(
     auth('manageOwnEmployees'),
     validate(employeeValidation.deleteEmployeeSchema),

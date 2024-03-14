@@ -6,9 +6,14 @@ import ApiError from '../errors/ApiError';
 // import { IOptions } from '../paginate/paginate';
 import * as employeeService from './employee.service';
 import createSuccessResponse from '../success/SuccessResponse';
+import { Role } from '../../config/enums';
 
 export const createEmployeeHandler = catchAsync(async (req: Request, res: Response) => {
-  const employee = await employeeService.createEmployee({ ...req.body, businessId: req.employee.businessId });
+  const employee = await employeeService.createEmployee({
+    ...req.body,
+    role: Role.EMPLOYEE,
+    businessId: req.employee.businessId,
+  });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ employee }));
 });
 

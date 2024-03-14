@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { NewDesignation } from './designation.interfaces';
+import { NewDepartment } from './department.interfaces';
 import { objectId } from '../validate';
 import Resource from '../../config/resources';
 import Action from '../../config/actions';
@@ -35,30 +35,30 @@ const permissionsSchema = Joi.object()
   )
   .custom(validatePermissions);
 
-const createDesignationBodySchema: Record<keyof NewDesignation, any> = {
-  name: Joi.string().required(),
+const createDepartmentBodySchema: Record<keyof NewDepartment, any> = {
+  title: Joi.string().required(),
   permissions: permissionsSchema.required(),
 };
 
-export const createDesignationSchema = {
-  body: Joi.object().keys(createDesignationBodySchema),
+export const createDepartmentSchema = {
+  body: Joi.object().keys(createDepartmentBodySchema),
 };
 
-export const getDesignationSchema = {
+export const getDepartmentSchema = {
   params: Joi.object().keys({
-    designationId: Joi.required().custom(objectId),
+    departmentId: Joi.required().custom(objectId),
   }),
 };
 
-export const updateDesignationSchema = {
+export const updateDepartmentSchema = {
   params: Joi.object().keys({
-    designationId: Joi.required().custom(objectId),
+    departmentId: Joi.required().custom(objectId),
   }),
-  body: Joi.object().keys(createDesignationBodySchema).optional(),
+  body: Joi.object().keys(createDepartmentBodySchema).optional(),
 };
 
-export const deleteDesignationSchema = {
+export const deleteDepartmentSchema = {
   query: Joi.object().keys({
-    designationId: Joi.string(),
+    departmentId: Joi.string(),
   }),
 };

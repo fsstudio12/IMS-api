@@ -40,3 +40,22 @@ export enum SortType {
   ASC = 'ascending',
   DESC = 'descending',
 }
+
+export enum EnrollmentType {
+  FULL_TIME = 'full_time',
+  PART_TIME = 'part_time',
+  CONTRACT = 'contract',
+}
+
+export enum PaySchedule {
+  WEEKLY = 'weekly',
+  BI_WEEKLY = 'bi-weekly',
+  MONTHLY = 'monthly',
+}
+
+export enum WageType {
+  HOURLY = 'hourly',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+  FIXED = 'fixed',
+}

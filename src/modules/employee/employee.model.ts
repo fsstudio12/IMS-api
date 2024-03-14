@@ -5,9 +5,14 @@ import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
 import { roles } from '../../config/roles';
 import { IEmployeeDoc, IEmployeeModel } from './employee.interfaces';
+import { EnrollmentType, PaySchedule, WageType } from '../../config/enums';
 
 const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
   {
+    businessId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Business',
+    },
     name: {
       type: String,
       required: true,
@@ -25,6 +30,22 @@ const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
         }
       },
     },
+    phone: { type: String },
+    address: { type: String },
+
+    departmentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+    },
+    enrollmentType: { type: String, enum: EnrollmentType },
+    paySchedule: { type: String, enum: PaySchedule },
+    payStartAt: { type: Date },
+    wageType: { type: String, enum: WageType },
+    salary: { type: Number },
+    joinedAt: { type: Date },
+    contractStart: { type: Date },
+    contractEnd: { type: Date },
+
     password: {
       type: String,
       required: true,
@@ -53,14 +74,6 @@ const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
     isBanned: {
       type: Boolean,
       default: false,
-    },
-    businessId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Business',
-    },
-    designationId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Designation',
     },
   },
   {

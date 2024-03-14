@@ -3,26 +3,38 @@ import mongoose, { ClientSession, FilterQuery } from 'mongoose';
 import Employee from './employee.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { NewCreatedEmployee, UpdateEmployee, IEmployeeDoc, NewRegisteredEmployee } from './employee.interfaces';
+import {
+  UpdateEmployeePayload,
+  IEmployeeDoc,
+  RegisterEmployeePayload,
+  EmployeePayloadWithFullInfo,
+} from './employee.interfaces';
+import { findDepartmentByFilterQuery } from '../department/department.service';
 
 /**
  * Create a employee
  * @param {NewCreatedEmployee} employeeBody
  * @returns {Promise<IEmployeeDoc>}
  */
-export const createEmployee = async (employeeBody: NewCreatedEmployee): Promise<IEmployeeDoc> => {
+export const createEmployee = async (employeeBody: EmployeePayloadWithFullInfo): Promise<IEmployeeDoc> => {
   if (await Employee.isEmailTaken(employeeBody.email)) throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+
+  const department = await findDepartmentByFilterQuery({
+    businessId: employeeBody.businessId,
+    _id: new mongoose.Types.ObjectId(employeeBody.departmentId),
+  });
+  if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
 
   return Employee.create(employeeBody);
 };
 
 /**
  * Register a employee
- * @param {NewRegisteredEmployee} employeeBody
+ * @param {RegisterEmployeePayload} employeeBody
  * @returns {Promise<IEmployeeDoc>}
  */
 export const registerEmployee = async (
-  employeeBody: NewRegisteredEmployee,
+  employeeBody: RegisterEmployeePayload,
   session: ClientSession
 ): Promise<IEmployeeDoc> => {
   if (await Employee.isEmailTaken(employeeBody.email)) throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
@@ -60,21 +72,28 @@ export const findEmployeeByEmail = async (email: string): Promise<IEmployeeDoc |
 /**
  * Update employee by id
  * @param {mongoose.Types.ObjectId} employeeId
- * @param {UpdateEmployee} updateBody
+ * @param {UpdateEmployeePayload} updateBody
  * @returns {Promise<IEmployeeDoc | null>}
  */
 export const updateEmployeeById = async (
   employeeId: mongoose.Types.ObjectId,
-  updateBody: UpdateEmployee
+  updateBody: UpdateEmployeePayload
 ): Promise<IEmployeeDoc | null> => {
+  console.log('🚀 ~ updateBody:', updateBody);
   const employee = await findEmployeeById(employeeId);
   if (!employee) throw new ApiError(httpStatus.NOT_FOUND, 'Employee not found');
 
   if (updateBody.email && (await Employee.isEmailTaken(updateBody.email, employeeId)))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
 
+  const department = await findDepartmentByFilterQuery({
+    businessId: updateBody.businessId,
+    departmentId: updateBody.departmentId,
+  });
+  if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
+
   Object.assign(employee, updateBody);
-  await employee.save();
+  // await employee.save();
   return employee;
 };
 
@@ -97,12 +116,47 @@ export const getEmployeesByFilterQuery = async (filterQuery: FilterQuery<IEmploy
       $match: filterQuery,
     },
     {
+      $lookup: {
+        from: 'departments',
+        localField: 'departmentId',
+        foreignField: '_id',
+        as: 'department',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              title: 1,
+              permissions: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'businesses',
+        localField: 'businessId',
+        foreignField: '_id',
+        as: 'business',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
       $project: {
         _id: 1,
         name: 1,
         email: 1,
         phone: 1,
         role: 1,
+        department: { $first: '$department' },
+        business: { $first: '$business' },
         isEmailVerified: 1,
         createdAt: 1,
       },

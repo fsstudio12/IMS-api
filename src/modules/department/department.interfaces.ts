@@ -7,7 +7,7 @@ export interface IResourceAction {
   actions: Actions[];
 }
 
-export interface IDesignation {
+export interface IDepartment {
   businessId: mongoose.Types.ObjectId;
   title: string;
   permissions: {
@@ -15,14 +15,14 @@ export interface IDesignation {
   };
 }
 
-export interface IDesignationDoc extends IDesignation, Document {}
+export interface IDepartmentDoc extends IDepartment, Document {}
 
-export interface IDesignationModel extends Model<IDesignationDoc> {
+export interface IDepartmentModel extends Model<IDepartmentDoc> {
   isTitleTaken(
     title: string,
     businessId: mongoose.Types.ObjectId,
-    excludeDesignationId?: mongoose.Types.ObjectId
+    excludeDepartmentId?: mongoose.Types.ObjectId
   ): Promise<boolean>;
 }
 
-export type NewDesignation = Omit<IDesignation, 'businessId'>;
+export type NewDepartment = Omit<IDepartment, 'businessId'>;

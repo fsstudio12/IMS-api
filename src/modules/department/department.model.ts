@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IDesignationDoc, IDesignationModel } from './designation.interfaces';
+import { IDepartmentDoc, IDepartmentModel } from './department.interfaces';
 import Resource from '../../config/resources';
 import Action from '../../config/actions';
 
@@ -9,7 +9,7 @@ Object.values(Resource).forEach((resource: Resource) => {
   permissionsSchema[resource] = { type: [String], enum: Action };
 });
 
-const designationSchema = new mongoose.Schema<IDesignationDoc, IDesignationModel>(
+const departmentSchema = new mongoose.Schema<IDepartmentDoc, IDepartmentModel>(
   {
     businessId: { type: mongoose.Schema.Types.ObjectId },
     title: { type: String, required: true },
@@ -21,30 +21,30 @@ const designationSchema = new mongoose.Schema<IDesignationDoc, IDesignationModel
 );
 
 /**
- * Check if designation title is taken
- * @param {string} title - The designation's title
- * @param {ObjectId} [excludeDesignationId] - The id of the designation to be excluded
+ * Check if department title is taken
+ * @param {string} title - The department's title
+ * @param {ObjectId} [excludeDepartmentId] - The id of the department to be excluded
  * @returns {Promise<boolean>}
  */
-designationSchema.static(
+departmentSchema.static(
   'isTitleTaken',
   async function isTitleTaken(
     title: string,
     businessId: mongoose.Types.ObjectId,
-    excludeDesignationId?: mongoose.Types.ObjectId
+    excludeDepartmentId?: mongoose.Types.ObjectId
   ): Promise<boolean> {
-    const designation = await this.findOne({
+    const department = await this.findOne({
       title,
       businessId,
       _id: {
-        $ne: excludeDesignationId,
+        $ne: excludeDepartmentId,
       },
     });
 
-    return !!designation;
+    return !!department;
   }
 );
 
-const Designation = mongoose.model<IDesignationDoc, IDesignationModel>('Designation', designationSchema);
+const Department = mongoose.model<IDepartmentDoc, IDepartmentModel>('Department', departmentSchema);
 
-export default Designation;
+export default Department;
