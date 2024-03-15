@@ -4,10 +4,11 @@ import Employee from './employee.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
 import {
-  UpdateEmployeePayload,
   IEmployeeDoc,
   RegisterEmployeePayload,
   EmployeePayloadWithFullInfo,
+  UpdateEmployeePayload,
+  IEmployeeForAuth,
 } from './employee.interfaces';
 import { findDepartmentByFilterQuery } from '../department/department.service';
 
@@ -24,6 +25,8 @@ export const createEmployee = async (employeeBody: EmployeePayloadWithFullInfo):
     _id: new mongoose.Types.ObjectId(employeeBody.departmentId),
   });
   if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
+
+  // employeeBody = { ...employeeBody };
 
   return Employee.create(employeeBody);
 };
@@ -79,21 +82,22 @@ export const updateEmployeeById = async (
   employeeId: mongoose.Types.ObjectId,
   updateBody: UpdateEmployeePayload
 ): Promise<IEmployeeDoc | null> => {
-  console.log('🚀 ~ updateBody:', updateBody);
   const employee = await findEmployeeById(employeeId);
   if (!employee) throw new ApiError(httpStatus.NOT_FOUND, 'Employee not found');
 
   if (updateBody.email && (await Employee.isEmailTaken(updateBody.email, employeeId)))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
 
-  const department = await findDepartmentByFilterQuery({
-    businessId: updateBody.businessId,
-    departmentId: updateBody.departmentId,
-  });
-  if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
+  if (updateBody.departmentId) {
+    const department = await findDepartmentByFilterQuery({
+      businessId: updateBody.businessId,
+      departmentId: new mongoose.Types.ObjectId(updateBody.departmentId),
+    });
+    if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
+  }
 
   Object.assign(employee, updateBody);
-  // await employee.save();
+  await employee.save();
   return employee;
 };
 
@@ -158,16 +162,18 @@ export const getEmployeesByFilterQuery = async (filterQuery: FilterQuery<IEmploy
         department: { $first: '$department' },
         business: { $first: '$business' },
         isEmailVerified: 1,
+        isVerified: 1,
+        isBanned: 1,
         createdAt: 1,
       },
     },
   ]);
 
-export const getEmployeesByRole = async (employee: IEmployeeDoc): Promise<IEmployeeDoc[]> => {
+export const getEmployeesByRole = async (employee: IEmployeeForAuth): Promise<IEmployeeDoc[]> => {
   let filterQuery: FilterQuery<IEmployeeDoc> = {};
   if (employee.role !== 'super_admin') {
     filterQuery = {
-      businessId: employee.businessId,
+      businessId: employee.business._id,
     };
     if (employee.role !== 'admin') {
       filterQuery = { ...filterQuery, role: { $ne: 'admin' } };

@@ -92,7 +92,6 @@ export const deleteRecipesById = async (queryRecipeIds: string, businessId?: mon
       updateRecipes.map(async (dbRecipe) => {
         for (const [index, combinationItem] of Object.entries(dbRecipe.combinationItems)) {
           if (recipeIds.includes(stringifyObjectId(combinationItem._id))) {
-            console.log(parseInt(index, 10));
             dbRecipe.combinationItems.splice(parseInt(index, 10), 1);
           }
         }

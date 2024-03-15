@@ -38,14 +38,14 @@ export const updateWastageHandler = catchAsync(async (req: Request, res: Respons
 
 export const deleteWastageHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['wastageId'] === 'string') {
-    await wastageService.deleteWastageById(req.params['wastageId'], req.employee.businessId);
+    const businessId = extractBusinessId(req);
+    await wastageService.deleteWastageById(req.params['wastageId'], businessId);
     res.send(createSuccessResponse());
   }
 });
 
 export const filterWastagesHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
-  console.log('🚀 ~ filterWastagesHandler ~ businessId:', businessId);
   let wastages: IWastageDoc[] = [];
   if (req.query['filterType'] === 'date') {
     wastages = await wastageService.getWastagesByDate(businessId);

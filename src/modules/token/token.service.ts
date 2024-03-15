@@ -7,7 +7,7 @@ import Token from './token.model';
 import ApiError from '../errors/ApiError';
 import tokenTypes from './token.types';
 import { AccessAndRefreshTokens, ITokenDoc } from './token.interfaces';
-import { IEmployeeDoc } from '../employee/employee.interfaces';
+import { IEmployeeDoc, IEmployeeForAuth } from '../employee/employee.interfaces';
 import { employeeService } from '../employee';
 
 /**
@@ -166,15 +166,15 @@ export const generateResetPasswordToken = async (email: string, session: ClientS
 
 /**
  * Generate verify email token
- * @param {IEmployeeDoc} employee
+ * @param {IEmployeeForAuth} employee
  * @returns {Promise<string>}
  */
 export const generateVerifyEmailToken = async (
-  employee: IEmployeeDoc,
+  employee: IEmployeeForAuth,
   session: ClientSession | null = null
 ): Promise<string> => {
   const expires = moment().add(config.jwt.verifyEmailExpirationMinutes, 'minutes');
-  const verifyEmailToken = generateToken(employee.id, expires, tokenTypes.VERIFY_EMAIL);
-  await saveToken(verifyEmailToken, employee.id, expires, tokenTypes.VERIFY_EMAIL, false, session);
+  const verifyEmailToken = generateToken(employee._id, expires, tokenTypes.VERIFY_EMAIL);
+  await saveToken(verifyEmailToken, employee._id, expires, tokenTypes.VERIFY_EMAIL, false, session);
   return verifyEmailToken;
 };

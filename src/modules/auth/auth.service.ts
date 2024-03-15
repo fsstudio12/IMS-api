@@ -54,7 +54,6 @@ export const refreshAuth = async (refreshToken: string): Promise<IEmployeeWithTo
     const tokens = await generateAccessToken(employee);
     return { employee, tokens };
   } catch (error) {
-    console.log('🚀 ~ refreshAuth ~ error:', error);
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
   }
 };

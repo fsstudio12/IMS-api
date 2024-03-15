@@ -1,17 +1,17 @@
 import mongoose, { Document, Model } from 'mongoose';
-import Actions from '../../config/actions';
-import Resources from '../../config/resources';
+import Action from '../../config/actions';
+import Resource from '../../config/resources';
 
 export interface IResourceAction {
-  resource: Resources;
-  actions: Actions[];
+  resource: Resource;
+  actions: Action[];
 }
 
 export interface IDepartment {
   businessId: mongoose.Types.ObjectId;
   title: string;
   permissions: {
-    [resource in Resources]: Actions[];
+    [resource in Resource]: Action[];
   };
 }
 

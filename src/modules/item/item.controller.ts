@@ -44,7 +44,8 @@ export const updateItemHandler = catchAsync(async (req: Request, res: Response) 
 
 export const deleteItemHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.query['itemId'] === 'string') {
-    await itemService.deleteItemsById(req.query['itemId'], req.employee.businessId);
+    const businessId = extractBusinessId(req);
+    await itemService.deleteItemsById(req.query['itemId'], businessId);
     res.send(createSuccessResponse());
   }
 });

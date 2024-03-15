@@ -6,10 +6,10 @@ import { ApiError } from '../errors';
 const extractBusinessId = (req: Request): mongoose.Types.ObjectId => {
   const { employee, body } = req;
 
-  const businessId = employee?.businessId || body.businessId;
+  const businessId = employee?.business._id || body.businessId;
 
   if (!businessId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business for the category.');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Please select a business.');
   }
 
   return new mongoose.Types.ObjectId(businessId);

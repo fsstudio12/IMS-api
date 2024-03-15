@@ -78,7 +78,11 @@ const validationForCreateItem = async (itemBody: NewItem): Promise<void> => {
   if (await Item.isNameTaken(itemBody.name, itemBody.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item with the entered name already exists.');
 
-  if (itemBody.isSellable && !!itemBody.price)
+  if (
+    (itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
+    !itemBody.price ||
+    itemBody?.price < 0
+  )
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
 
   if (!itemBody.isSellable && itemBody.price)
@@ -107,7 +111,11 @@ export const validationForUpdateItemById = async (
   itemId: mongoose.Types.ObjectId,
   itemBody: UpdateItem
 ): Promise<IItemDoc> => {
-  if (itemBody.isSellable && !itemBody.price)
+  if (
+    (itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
+    !itemBody.price ||
+    itemBody?.price < 0
+  )
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
 
   if (!itemBody.isSellable && itemBody.price)
@@ -165,7 +173,6 @@ export const deleteItemsById = async (queryItemIds: string, businessId?: mongoos
       dbCombinedItems.map(async (dbItem) => {
         for (const [index, combinationItem] of Object.entries(dbItem.combinationItems)) {
           if (itemIds.includes(stringifyObjectId(combinationItem._id))) {
-            console.log(parseInt(index, 10));
             dbItem.combinationItems.splice(parseInt(index, 10), 1);
           }
         }

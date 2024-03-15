@@ -3,12 +3,12 @@ import passport from 'passport';
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError';
 import { roleRights } from '../../config/roles';
-import { IEmployeeDoc } from '../employee/employee.interfaces';
+import { IEmployeeForAuth } from '../employee/employee.interfaces';
 import { VerifyCallback } from './auth.interface';
 
 const verifyCallback: VerifyCallback =
   (req: Request, resolve: any, reject: any, requiredRights: string[]) =>
-  async (err: Error, employee: IEmployeeDoc, info: string) => {
+  async (err: Error, employee: IEmployeeForAuth, info: string) => {
     if (err || info || !employee) {
       return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
     }
@@ -19,7 +19,7 @@ const verifyCallback: VerifyCallback =
       const employeeRights = roleRights.get(employee.role);
       if (!employeeRights) return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
       const hasRequiredRights = requiredRights.every((requiredRight: string) => employeeRights.includes(requiredRight));
-      if (!hasRequiredRights && req.params['employeeId'] !== employee.id) {
+      if (!hasRequiredRights && req.params['employeeId'] !== employee._id.toString()) {
         return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
       }
     }
@@ -29,6 +29,7 @@ const verifyCallback: VerifyCallback =
 
 const authMiddleware =
   (...requiredRights: string[]) =>
+  // (...requiredRights: Record<Resource, Action[]>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> =>
     new Promise<void>((resolve: (value?: void | PromiseLike<void>) => void, reject: (reason?: any) => void) => {
       passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);

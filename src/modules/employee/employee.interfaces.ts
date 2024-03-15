@@ -1,7 +1,9 @@
 import mongoose, { Model, Document } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 import { AccessAndRefreshTokens } from '../token/token.interfaces';
-import { EnrollmentType, PaySchedule, WageType } from '../../config/enums';
+import { EnrollmentType, PaySchedule, Role, WageType } from '../../config/enums';
+import Resource from '../../config/resources';
+import Action from '../../config/actions';
 
 export interface IEmployee {
   businessId: mongoose.Types.ObjectId;
@@ -42,7 +44,7 @@ export type EmployeePayloadWithFullInfo = Omit<IEmployee, 'isEmailVerified' | 'i
   departmentId: string;
 };
 
-export type UpdateEmployeePayload = Omit<Partial<EmployeePayloadWithFullInfo>, 'password'>;
+export type UpdateEmployeePayload = Partial<IEmployee>;
 
 export type RegisterEmployeePayload = Pick<IEmployee, 'name' | 'email' | 'phone' | 'password'>;
 
@@ -54,4 +56,26 @@ export type CreateEmployeePayloadWithPartialInfo = Pick<
 export interface IEmployeeWithTokens {
   employee: IEmployeeDoc;
   tokens: AccessAndRefreshTokens;
+}
+
+export interface IEmployeeForAuth {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  phone?: string;
+  role: Role;
+  isEmailVerified: boolean;
+  isVerified: boolean;
+  isBanned: boolean;
+  department: {
+    _id: mongoose.Types.ObjectId;
+    title: string;
+    permissions: {
+      [resource in Resource]: Action[];
+    };
+  };
+  business: {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+  };
 }

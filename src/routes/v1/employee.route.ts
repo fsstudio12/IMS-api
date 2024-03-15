@@ -2,29 +2,22 @@ import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 import { employeeController, employeeValidation } from '../../modules/employee';
+// import Resource from '../../config/resources';
 
 const router: Router = express.Router();
 
 router
   .route('/')
-  .get(auth('getOwnEmployees'), validate(employeeValidation.getEmployeesSchema), employeeController.getEmployeesHandler)
-  .post(
-    auth('manageOwnEmployees'),
-    validate(employeeValidation.createEmployeeSchema),
-    employeeController.createEmployeeHandler
-  );
+  .get(auth(), validate(employeeValidation.getEmployeesSchema), employeeController.getEmployeesHandler)
+  .post(auth(), validate(employeeValidation.createEmployeeSchema), employeeController.createEmployeeHandler);
 
 router
   .route('/:employeeId')
-  .get(auth('getOwnEmployees'), validate(employeeValidation.getEmployeeSchema), employeeController.getEmployeeHandler)
+  .get(auth(), validate(employeeValidation.getEmployeeSchema), employeeController.getEmployeeHandler)
   .patch(auth(), validate(employeeValidation.updateEmployeeSchema), employeeController.updateEmployeeHandler)
-  .delete(
-    auth('manageOwnEmployees'),
-    validate(employeeValidation.deleteEmployeeSchema),
-    employeeController.deleteEmployeeHandler
-  );
+  .delete(auth(), validate(employeeValidation.deleteEmployeeSchema), employeeController.deleteEmployeeHandler);
 
-// router.route('/own/all').get(auth('getOwnEmployees'), employeeController.getEmployeesHandler);
+// router.route('/own/all').get(auth(), employeeController.getEmployeesHandler);
 
 export default router;
 

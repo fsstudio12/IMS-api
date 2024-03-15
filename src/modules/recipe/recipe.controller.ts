@@ -9,7 +9,6 @@ import createSuccessResponse from '../success/SuccessResponse';
 export const createRecipeHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
 
-  console.log('create recipe');
   const recipe = await recipeService.createRecipe({ ...req.body, businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ recipe }));
 });

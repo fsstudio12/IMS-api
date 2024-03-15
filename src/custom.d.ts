@@ -1,7 +1,7 @@
-import { IEmployeeDoc } from './modules/employee/employee.interfaces';
+import { IEmployeeForAuth } from './modules/employee/employee.interfaces';
 
 declare module 'express-serve-static-core' {
   export interface Request {
-    employee: IEmployeeDoc;
+    employee: IEmployeeForAuth;
   }
 }
