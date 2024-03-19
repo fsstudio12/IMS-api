@@ -4,7 +4,18 @@ import * as common from './common';
 import * as fileOperations from './fileOperations';
 import pick from './pick';
 import authLimiter from './rateLimiter';
+import convertRequiredRights from './reformPermissions';
 import * as s3Operations from './s3Operations';
 import runInTransaction from './transactionWrapper';
 
-export { extractBusinessId, catchAsync, common, fileOperations, pick, authLimiter, s3Operations, runInTransaction };
+export {
+  extractBusinessId,
+  catchAsync,
+  common,
+  fileOperations,
+  pick,
+  authLimiter,
+  s3Operations,
+  runInTransaction,
+  convertRequiredRights,
+};

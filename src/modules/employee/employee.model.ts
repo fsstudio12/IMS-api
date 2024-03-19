@@ -3,9 +3,8 @@ import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
-import { roles } from '../../config/roles';
 import { IEmployeeDoc, IEmployeeModel } from './employee.interfaces';
-import { EnrollmentType, PaySchedule, WageType } from '../../config/enums';
+import { EnrollmentType, PaySchedule, WageType, Role } from '../../config/enums';
 
 const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
   {
@@ -60,8 +59,8 @@ const employeeSchema = new mongoose.Schema<IEmployeeDoc, IEmployeeModel>(
     },
     role: {
       type: String,
-      enum: roles,
-      default: 'employee',
+      enum: Role,
+      default: Role.EMPLOYEE,
     },
     isEmailVerified: {
       type: Boolean,

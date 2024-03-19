@@ -2,13 +2,23 @@ import express, { Router } from 'express';
 import { validate } from '../../modules/validate';
 import { auth } from '../../modules/auth';
 import { employeeController, employeeValidation } from '../../modules/employee';
-// import Resource from '../../config/resources';
+import Resource from '../../config/resources';
+import Action from '../../config/actions';
+import convertRequiredRights from '../../modules/utils/reformPermissions';
 
 const router: Router = express.Router();
 
 router
   .route('/')
-  .get(auth(), validate(employeeValidation.getEmployeesSchema), employeeController.getEmployeesHandler)
+  .get(
+    auth(
+      convertRequiredRights({
+        [Resource.EMPLOYEES]: [Action.EDIT],
+      })
+    ),
+    validate(employeeValidation.getEmployeesSchema),
+    employeeController.getEmployeesHandler
+  )
   .post(auth(), validate(employeeValidation.createEmployeeSchema), employeeController.createEmployeeHandler);
 
 router
