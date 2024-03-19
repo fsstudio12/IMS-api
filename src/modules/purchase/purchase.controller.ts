@@ -73,7 +73,8 @@ export const removePurchasePaymentHandler = catchAsync(async (req: Request, res:
 
 export const deletePurchaseHandler = catchAsync(async (req: Request, res: Response) => {
   if (typeof req.params['purchaseId'] === 'string') {
-    await purchaseService.deletePurchase(req.params['purchaseId'], req.employee.businessId);
+    const businessId = extractBusinessId(req);
+    await purchaseService.deletePurchase(req.params['purchaseId'], businessId);
     res.send(createSuccessResponse());
   }
 });
