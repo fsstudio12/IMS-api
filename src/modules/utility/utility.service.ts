@@ -3,6 +3,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import { IUtilityDoc, NewUtility } from './utility.interfaces';
 import Utility from './utility.model';
 import { ApiError } from '../errors';
+import { splitFromQuery } from '../utils/common';
 
 export const findUtilitiesByFilterQuery = async (filterQuery: FilterQuery<IUtilityDoc>): Promise<IUtilityDoc[]> =>
   Utility.find(filterQuery);
@@ -31,4 +32,19 @@ export const updateUtilityById = async (utilityId: mongoose.Types.ObjectId, util
   Object.assign(utility, utilityBody);
   await utility.save();
   return utility;
+};
+
+export const deleteUtilitiesById = async (queryUtilityIds: string, businessId?: mongoose.Types.ObjectId) => {
+  const utilityIds = splitFromQuery(queryUtilityIds);
+  const mappedUtilityIds = utilityIds.map((utilityId: string) => new mongoose.Types.ObjectId(utilityId));
+
+  const matchQuery: FilterQuery<IUtilityDoc> = {
+    _id: { $in: mappedUtilityIds },
+  };
+
+  if (businessId) {
+    matchQuery.businessId = businessId;
+  }
+
+  await Utility.deleteMany(matchQuery);
 };

@@ -14,6 +14,7 @@ import itemRoute from './item.route';
 import purchaseRoute from './purchase.route';
 import recipeRoute from './recipe.route';
 import salesRoute from './sales.route';
+import utilitiesRoute from './utility.route';
 import vendorRoute from './vendor.route';
 import wastageRoute from './wastage.route';
 
@@ -68,6 +69,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: '/sales',
     route: salesRoute,
+  },
+  {
+    path: '/utilities',
+    route: utilitiesRoute,
   },
   {
     path: '/vendors',

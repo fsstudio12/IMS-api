@@ -40,6 +40,11 @@
             "peerDependencies": false,
             "packageDir": "./"
           }
+        ],
+        "import/extensions": [
+          "error",
+          "never"
+          // { "svg": "always" }
         ]
       }
     }
