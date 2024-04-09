@@ -1,3 +1,5 @@
+/* eslint-disable-next-line import/no-extraneous-dependencies */
+import axios from 'axios';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 
@@ -8,11 +10,11 @@ export const parseToString = (value: any): string => value.toString();
 
 export const parseToInteger = (value: string): number => parseInt(value, 10);
 
-export const stringifyObjectId = (_id: mongoose.Types.ObjectId) => _id.toString();
+export const stringifyObjectId = (_id: mongoose.Types.ObjectId): string => _id.toString();
 
-export const splitFromQuery = (queryParams: string) => queryParams.split(',');
+export const splitFromQuery = (queryParams: string): string[] => queryParams.split(',');
 
-export const setTwoDecimalPlaces = (amount: number) => parseFloat(amount.toFixed(2));
+export const setTwoDecimalPlaces = (amount: number): number => parseFloat(amount.toFixed(2));
 
 export const sortArrayByDate = <T>(arrayToSort: T[], dateField: keyof T, sortType: SortType = SortType.DESC): T[] =>
   arrayToSort.sort((a: T, b: T) =>
@@ -114,3 +116,21 @@ export const getOrderString = (number: number): string => {
 };
 
 export const deepCopy = (dataToCopy: any) => JSON.parse(JSON.stringify(dataToCopy));
+
+export const fetchFromUrl = async (url: string) => {
+  try {
+    const response = await axios(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching:', error);
+    throw error;
+  }
+};
+
+// getPeriodAgo(
+// unit:number
+// period: moment.unitOfTime.DurationConstructor
+// )
+// moment().local().subtract(unit, period)
+
+// getPeriodAgo('hours', parsePeriodToHours(relative||defaultSth))

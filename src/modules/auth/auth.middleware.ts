@@ -9,7 +9,7 @@ import Action from '../../config/actions';
 
 const verifyCallback: VerifyCallback =
   (req: Request, resolve: any, reject: any, requiredRights: Record<Resource, Action[]>) =>
-  async (err: Error, employee: IEmployeeForAuth, info: string) => {
+  async (err: Error, employee: IEmployeeForAuth, info: string): Promise<any> => {
     if (err || info || !employee) {
       return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate'));
     }
@@ -55,7 +55,7 @@ const authMiddleware =
     new Promise<void>((resolve: (value?: void | PromiseLike<void>) => void, reject: (reason?: any) => void) => {
       passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
     })
-      .then(() => next())
-      .catch((err) => next(err));
+      .then((): void => next())
+      .catch((err: any): void => next(err));
 
 export default authMiddleware;

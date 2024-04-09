@@ -10,8 +10,10 @@ export const getPurchaseSchema = {
   }),
 };
 
-const paymentSchema = {
+export const paymentSchema = {
   _id: Joi.custom(objectId).optional().allow(null, ''),
+  title: Joi.string().optional(),
+  name: Joi.string().optional(),
   amount: Joi.number(),
   method: Joi.string().optional().allow(null),
   date: Joi.string(),

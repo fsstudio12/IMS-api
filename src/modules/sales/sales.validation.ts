@@ -3,18 +3,12 @@ import { INewSales, ISales } from './sales.interfaces';
 import { objectId } from '../validate';
 import { itemValidation } from '../item';
 import { PaymentStatus } from '../../config/enums';
+import { paymentSchema } from '../purchase/purchase.validation';
 
 export const getSalesSchema = {
   params: Joi.object().keys({
     salesId: Joi.string().custom(objectId),
   }),
-};
-
-const paymentSchema = {
-  _id: Joi.custom(objectId).optional().allow(null, ''),
-  amount: Joi.number(),
-  method: Joi.string().optional().allow(null),
-  date: Joi.string(),
 };
 
 const salesItemSchema = {

@@ -19,9 +19,7 @@ export const updateUtilityPayloadSchema = {
   params: Joi.object().keys({
     utilityId: Joi.string().custom(objectId),
   }),
-  body: Joi.object().keys({
-    ...createUtilityPayloadSchema,
-  }),
+  ...createUtilityPayloadSchema,
 };
 
 export const deleteUtilityPayloadSchema = {

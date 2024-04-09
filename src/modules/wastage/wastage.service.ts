@@ -112,7 +112,7 @@ export const updateWastageById = async (wastageId: mongoose.Types.ObjectId, upda
   return wastage;
 };
 
-export const deleteWastageById = async (queryWastageIds: string, businessId?: mongoose.Types.ObjectId) => {
+export const deleteWastageById = async (queryWastageIds: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
   const wastageIds = common
     .splitFromQuery(queryWastageIds)
     .map((wastageId: string) => new mongoose.Types.ObjectId(wastageId));
