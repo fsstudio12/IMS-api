@@ -3,11 +3,5 @@
   "buildCommand": "npm run compile:watch",
   "installCommand": "npm install",
   "outputDirectory": "dist",
-
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/dist"
-    }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/dist" }]
 }
