@@ -8,13 +8,13 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(auth(), itemController.getItemsHandler)
-  .post(auth(), validate(itemValidation.createItemSchema), itemController.createItemHandler);
+  .post(auth(), validate(itemValidation.createItemSchema), itemController.createItemHandler)
+  .delete(auth(), validate(itemValidation.deleteItemSchema), itemController.deleteItemHandler);
 
 router
   .route('/:itemId')
   .get(auth(), validate(itemValidation.getItemSchema), itemController.getItemHandler)
-  .patch(auth(), validate(itemValidation.updateItemSchema), itemController.updateItemHandler)
-  .delete(auth(), validate(itemValidation.deleteItemSchema), itemController.deleteItemHandler);
+  .patch(auth(), validate(itemValidation.updateItemSchema), itemController.updateItemHandler);
 
 router.route('/table/list').get(auth(), itemController.itemTableListHandler);
 

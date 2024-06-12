@@ -8,7 +8,7 @@ export const paymentSchema = new mongoose.Schema({
   name: { type: String },
   amount: { type: Number },
   method: { type: String, enum: [...Object.values(PaymentMethod), null], default: null },
-  date: { type: Date },
+  date: { type: Date, default: new Date() },
 });
 
 export const paymentInfoSchema = new mongoose.Schema(
@@ -37,10 +37,10 @@ const salesSchema = new mongoose.Schema<ISalesDoc, ISalesModel>(
     },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vendor',
+      ref: 'Customer',
     },
     paymentInfo: paymentInfoSchema,
-    date: { type: Date },
+    date: { type: Date, nullable: true },
     invoiceNumber: { type: String },
     items: [salesItemSchema],
   },

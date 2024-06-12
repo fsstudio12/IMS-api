@@ -5,10 +5,11 @@ import { salesController, salesValidation } from '../../modules/sales';
 
 const router: Router = express.Router();
 
-router
-  .route('/')
-  .get(auth(), salesController.getSalesHandler)
-  .post(auth(), validate(salesValidation.createSalesSchema), salesController.createSalesHandler);
+router.route('/').get(auth(), salesController.getSalesHandler).post(
+  auth(),
+  // validate(salesValidation.createSalesSchema),
+  salesController.createSalesHandler
+);
 
 router
   .route('/:salesId')

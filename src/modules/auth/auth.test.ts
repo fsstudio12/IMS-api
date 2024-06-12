@@ -11,7 +11,7 @@ import app from '../../app';
 import setupTestDB from '../jest/setupTestDB';
 import User from '../employee/employee.model';
 import config from '../../config/config';
-import { NewRegisteredUser } from '../employee/employee.interfaces';
+import { RegisterEmployeePayload } from '../employee/employee.interfaces';
 import * as tokenService from '../token/token.service';
 import tokenTypes from '../token/token.types';
 import Token from '../token/token.model';
@@ -42,11 +42,12 @@ const insertUsers = async (users: Record<string, any>[]) => {
 
 describe('Auth routes', () => {
   describe('POST /v1/auth/register', () => {
-    let newUser: NewRegisteredUser;
+    let newUser: RegisterEmployeePayload;
     beforeEach(() => {
       newUser = {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
+        phone: '9812345678',
         password: 'password1',
       };
     });
@@ -523,7 +524,7 @@ describe('Auth middleware', () => {
     const req = httpMocks.createRequest({ headers: { Authorization: `Bearer ${userOneAccessToken}` } });
     const next = jest.fn();
 
-    await authMiddleware('anyRight')(req, httpMocks.createResponse(), next);
+    await authMiddleware()(req, httpMocks.createResponse(), next);
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: httpStatus.FORBIDDEN, message: 'Forbidden' }));
@@ -537,7 +538,7 @@ describe('Auth middleware', () => {
     });
     const next = jest.fn();
 
-    await authMiddleware('anyRight')(req, httpMocks.createResponse(), next);
+    await authMiddleware()(req, httpMocks.createResponse(), next);
 
     expect(next).toHaveBeenCalledWith();
   });

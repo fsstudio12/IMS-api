@@ -4,7 +4,7 @@ import ApiError from '../errors/ApiError';
 import Category from './category.model';
 import { ICategoryDoc, NewCategory, UpdateCategory } from './category.interfaces';
 import { IOptions, QueryResult } from '../paginate/paginate';
-import { IUserDoc } from '../employee/employee.interfaces';
+import { IEmployeeForAuth } from '../employee/employee.interfaces';
 import { stringifyObjectId } from '../utils/common';
 
 /**
@@ -28,13 +28,13 @@ export const getCategoryById = async (id: mongoose.Types.ObjectId): Promise<ICat
 
 export const updateCategoryById = async (
   categoryId: mongoose.Types.ObjectId,
-  user: IUserDoc,
+  employee: IEmployeeForAuth,
   updateBody: UpdateCategory
 ): Promise<ICategoryDoc | null> => {
   const category = await getCategoryById(categoryId);
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
-  if (user.role !== 'super_admin' && stringifyObjectId(user.businessId) !== stringifyObjectId(category.businessId))
+  if (employee.role !== 'super_admin' && stringifyObjectId(employee.business._id) !== stringifyObjectId(category.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   Object.assign(category, updateBody);
@@ -44,12 +44,12 @@ export const updateCategoryById = async (
 
 export const deleteCategoryById = async (
   categoryId: mongoose.Types.ObjectId,
-  user: IUserDoc
+  employee: IEmployeeForAuth
 ): Promise<ICategoryDoc | null> => {
   const category = await getCategoryById(categoryId);
   if (!category) throw new ApiError(httpStatus.NOT_FOUND, 'Category not found.');
 
-  if (user.role !== 'super_admin' && stringifyObjectId(user.businessId) !== stringifyObjectId(category.businessId))
+  if (employee.role !== 'super_admin' && stringifyObjectId(employee.business._id) !== stringifyObjectId(category.businessId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'You can only update your own categories.');
 
   await category.deleteOne();

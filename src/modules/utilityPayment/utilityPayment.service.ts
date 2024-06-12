@@ -26,15 +26,36 @@ export const findUtilityPaymentByIdAndBusinessId = async (
   return findUtilityPaymentByFilterQuery({ _id, businessId });
 };
 
+export const getUtilityPaymentsByFilterQuery = async (
+  filterQuery: FilterQuery<IUtilityPaymentDoc>
+): Promise<IUtilityPaymentDoc[]> =>
+  UtilityPayment.aggregate([
+    {
+      $match: filterQuery,
+    },
+    {
+      $project: {
+        title: 1,
+        date: 1,
+        timeline: {
+          from: '$from',
+          to: '$to',
+        },
+        utilities: 1,
+      },
+    },
+  ]);
+
 export const validateUtilities = async (utilities: IEachUtilityPayment[]) => {
-  const validationPromises = utilities.map(async (utility) => {
+  const validationPromises = utilities.map(async (utility: IEachUtilityPayment) => {
     const checkUtility = await findUtilityById(utility._id);
     if (!checkUtility) throw new ApiError(httpStatus.NOT_FOUND, 'Selected utility not found.');
 
     const updatedUtility = {
-      ...utility,
+      _id: checkUtility._id,
+      title: checkUtility.title,
       payments: utility.payments.map((payment: Partial<IPayment>) => ({
-        _id: new mongoose.Types.ObjectId(),
+        _id: payment._id ? new mongoose.Types.ObjectId(payment._id) : new mongoose.Types.ObjectId(),
         date: payment.date ?? new Date(),
         amount: payment.amount!,
         method: payment?.method ?? PaymentMethod.CASH,
@@ -60,11 +81,16 @@ export const createUtilityPayment = async (utilityPaymentBody: NewUtilityPayment
 export const updateUtilityPaymentById = async (
   utilityPaymentId: mongoose.Types.ObjectId,
   utilityPaymentBody: IUtilityPayment
-) => {
+): Promise<IUtilityPaymentDoc> => {
   const utilityPayment = await findUtilityPaymentById(utilityPaymentId);
   if (!utilityPayment) throw new ApiError(httpStatus.NOT_FOUND, 'UtilityPayment not found.');
 
-  Object.assign(utilityPayment, utilityPaymentBody);
+  const validatedUtilities = await validateUtilities(utilityPaymentBody.utilities);
+
+  Object.assign(utilityPayment, {
+    ...utilityPaymentBody,
+    utilities: validatedUtilities,
+  });
   await utilityPayment.save();
   return utilityPayment;
 };

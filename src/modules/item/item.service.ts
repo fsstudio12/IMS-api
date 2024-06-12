@@ -54,6 +54,7 @@ export const sanitizeItemParams = async (
 
   return items.map((item: ICombinationItem) => {
     const correspondingItem = dbItemsMap.get(stringifyObjectId(item._id));
+    console.log('🚀 ~ returnitems.map ~ correspondingItem:', correspondingItem);
     if (!correspondingItem) throw new ApiError(httpStatus.NOT_FOUND, 'Raw Item not found.');
 
     if (checkIfSellable && !correspondingItem.isSellable)

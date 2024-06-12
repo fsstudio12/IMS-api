@@ -7,13 +7,13 @@ import {
   createUtilityPayment,
   deleteUtilityPaymentsById,
   findUtilityPaymentByIdAndBusinessId,
-  findUtilityPaymentsByFilterQuery,
+  getUtilityPaymentsByFilterQuery,
   updateUtilityPaymentById,
 } from './utilityPayment.service';
 
 export const getUtilityPaymentsHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
-  const utilityPayments = await findUtilityPaymentsByFilterQuery({ businessId });
+  const utilityPayments = await getUtilityPaymentsByFilterQuery({ businessId });
   res.status(httpStatus.CREATED).send(createSuccessResponse({ utilityPayments }));
 });
 

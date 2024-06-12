@@ -19,12 +19,12 @@ router
     validate(employeeValidation.getEmployeesSchema),
     employeeController.getEmployeesHandler
   )
-  .post(auth(), validate(employeeValidation.createEmployeeSchema), employeeController.createEmployeeHandler);
+  .post(auth(), employeeController.createEmployeeHandler);
 
 router
   .route('/:employeeId')
   .get(auth(), validate(employeeValidation.getEmployeeSchema), employeeController.getEmployeeHandler)
-  .patch(auth(), validate(employeeValidation.updateEmployeeSchema), employeeController.updateEmployeeHandler)
+  .patch(auth(), employeeController.updateEmployeeHandler)
   .delete(auth(), validate(employeeValidation.deleteEmployeeSchema), employeeController.deleteEmployeeHandler);
 
 // router.route('/own/all').get(auth(), employeeController.getEmployeesHandler);

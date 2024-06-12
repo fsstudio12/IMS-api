@@ -17,7 +17,8 @@ const validatePermissions = (value: any, helpers: Joi.CustomHelpers<any>) => {
     return helpers.error('any.required');
   }
   const missingResources = Object.values(Resource).filter((resource) => {
-    return !(resource in value) || value[resource].length === 0;
+    // return !(resource in value) || value[resource].length === 0;
+    return !(resource in value);
   });
   if (missingResources.length > 0) {
     return helpers.error(`Permissions for ${missingResources} is required.`);
@@ -25,11 +26,13 @@ const validatePermissions = (value: any, helpers: Joi.CustomHelpers<any>) => {
   return value;
 };
 
+const actionValidator = Joi.string().valid(...Object.values(Action));
+
 const permissionsSchema = Joi.object()
   .keys(
     Object.keys(Resource).reduce((acc, resourceKey) => {
       const resource = Resource[resourceKey as keyof typeof Resource];
-      acc[resource] = Joi.array().items(Joi.string().valid(...Object.values(Action)));
+      acc[resource] = Joi.array().items(actionValidator);
       return acc;
     }, {} as Record<Resource, Joi.Schema>)
   )

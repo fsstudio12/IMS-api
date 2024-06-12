@@ -85,7 +85,7 @@ export const createPurchase = async (purchaseBody: NewPurchase): Promise<IPurcha
   if (!vendor) throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found.');
 
   const items = (await sanitizeItemParams(purchaseBody.items, true)) as ICombinationItem[];
-  const date = new Date(purchaseBody.date);
+  const date = purchaseBody?.date ? new Date(purchaseBody?.date) : new Date();
 
   const paymentInfo: IPaymentInfo = generatePaymentInfo(purchaseBody.payment, items);
 
@@ -100,7 +100,7 @@ export const createPurchase = async (purchaseBody: NewPurchase): Promise<IPurcha
   return purchase;
 };
 
-export const getPurchasesWithMatchQuery = async (matchQuery: FilterQuery<IPurchaseDoc>): Promise<IPurchaseDoc[]> => {
+export const getPurchasesWithMatchQuery = (matchQuery: FilterQuery<IPurchaseDoc>): Promise<IPurchaseDoc[]> => {
   return Purchase.aggregate([
     {
       $match: matchQuery,

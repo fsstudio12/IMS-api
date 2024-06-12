@@ -5,10 +5,7 @@ import { purchaseController, purchaseValidation } from '../../modules/purchase';
 
 const router: Router = express.Router();
 
-router
-  .route('/')
-  .get(auth(), purchaseController.getPurchasesHandler)
-  .post(auth(), validate(purchaseValidation.createPurchaseSchema), purchaseController.createPurchaseHandler);
+router.route('/').get(auth(), purchaseController.getPurchasesHandler).post(auth(), purchaseController.createPurchaseHandler);
 
 router
   .route('/:purchaseId')

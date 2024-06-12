@@ -14,6 +14,7 @@ const userOne = {
   _id: new mongoose.Types.ObjectId(),
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
+  phone: '9812345678',
   password,
   role: 'employee',
   isEmailVerified: false,
@@ -27,7 +28,7 @@ describe('Token Model', () => {
   beforeEach(() => {
     newToken = {
       token: userOneAccessToken,
-      user: userOne._id.toHexString(),
+      employee: userOne._id.toHexString(),
       type: tokenTypes.REFRESH,
       expires: refreshTokenExpires.toDate(),
     };

@@ -11,7 +11,7 @@ function loadEnvFile() {
       break;
 
     case 'production':
-      envFileName = '.env.production';
+      envFileName = '.env';
       break;
 
     case 'test':

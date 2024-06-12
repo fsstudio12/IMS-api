@@ -15,7 +15,7 @@ export const createPurchaseHandler = catchAsync(async (req: Request, res: Respon
 export const getPurchasesHandler = catchAsync(async (req: Request, res: Response) => {
   const businessId = extractBusinessId(req);
   const purchases = await purchaseService.getPurchasesByBusinessId(businessId);
-  res.send(createSuccessResponse(purchases));
+  res.send(createSuccessResponse({ purchases }));
 });
 
 export const getPurchaseHandler = catchAsync(async (req: Request, res: Response) => {

@@ -82,6 +82,7 @@ export const updateEmployeeById = async (
   employeeId: mongoose.Types.ObjectId,
   updateBody: UpdateEmployeePayload
 ): Promise<IEmployeeDoc | null> => {
+  console.log(updateBody);
   const employee = await findEmployeeById(employeeId);
   if (!employee) throw new ApiError(httpStatus.NOT_FOUND, 'Employee not found');
 
@@ -90,8 +91,7 @@ export const updateEmployeeById = async (
 
   if (updateBody.departmentId) {
     const department = await findDepartmentByFilterQuery({
-      businessId: updateBody.businessId,
-      departmentId: new mongoose.Types.ObjectId(updateBody.departmentId),
+      _id: new mongoose.Types.ObjectId(updateBody.departmentId),
     });
     if (!department) throw new ApiError(httpStatus.NOT_FOUND, 'Department not found.');
   }

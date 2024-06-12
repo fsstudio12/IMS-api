@@ -85,18 +85,20 @@ export const createSales = async (salesBody: NewSales): Promise<ISalesDoc | null
 
   const items = (await sanitizeItemParams(salesBody.items, false, true)) as ICombinationItem[];
 
-  const date = new Date(salesBody.date);
+  const date = salesBody?.date ? new Date(salesBody?.date) : new Date();
 
   const paymentInfo: IPaymentInfo = generatePaymentInfo(salesBody.payment, items);
 
-  const sales = Sales.create({
+  const salesParams = {
     businessId: salesBody.businessId,
     customerId: customer._id,
     paymentInfo,
     date,
     invoiceNumber: salesBody.invoiceNumber,
     items,
-  });
+  };
+
+  const sales = Sales.create(salesParams);
   return sales;
 };
 
@@ -104,6 +106,44 @@ export const getSalesWithMatchQuery = async (matchQuery: FilterQuery<ISalesDoc>)
   return Sales.aggregate([
     {
       $match: matchQuery,
+    },
+    {
+      $addFields: {
+        status: '$paymentInfo.status',
+        paid: '$paymentInfo.paid',
+      },
+    },
+    {
+      $lookup: {
+        from: 'customers',
+        localField: 'customerId',
+        foreignField: '_id',
+        as: 'customer',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phone: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        paymentInfo: 1,
+        date: 1,
+        invoiceNumber: 1,
+        items: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        status: 1,
+        paid: 1,
+        customer: { $first: '$customer' },
+      },
     },
   ]);
 };

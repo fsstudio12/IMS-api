@@ -1,10 +1,10 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
-import { findUserById } from '../employee/employee.service';
+import { findEmployeeById } from '../employee/employee.service';
 import { ApiError } from '../errors';
 
 export const toggleVerifyUser = async (userId: mongoose.Types.ObjectId) => {
-  const user = await findUserById(userId);
+  const user = await findEmployeeById(userId);
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found.');
 
   user.isVerified = !user.isVerified;
@@ -12,7 +12,7 @@ export const toggleVerifyUser = async (userId: mongoose.Types.ObjectId) => {
 };
 
 export const toggleBanUser = async (userId: mongoose.Types.ObjectId) => {
-  const user = await findUserById(userId);
+  const user = await findEmployeeById(userId);
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found.');
 
   user.isBanned = !user.isBanned;

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { Logger } from 'winston';
 import config from '../../config/config';
 import logger from '../logger/logger';
 import { Message } from './email.interfaces';
@@ -8,8 +9,10 @@ export const transport = nodemailer.createTransport(config.email.smtp);
 if (config.env !== 'test') {
   transport
     .verify()
-    .then(() => logger.info('Connected to email server'))
-    .catch(() => logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env'));
+    .then((): Logger => logger.info('Connected to email server'))
+    .catch(
+      (): Logger => logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env')
+    );
 }
 
 /**

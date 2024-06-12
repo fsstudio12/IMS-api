@@ -10,7 +10,7 @@ import * as tokenService from '../token/token.service';
 import app from '../../app';
 import setupTestDB from '../jest/setupTestDB';
 import User from './employee.model';
-import { NewCreatedUser } from './employee.interfaces';
+import { RegisterEmployeePayload } from './employee.interfaces';
 
 setupTestDB();
 
@@ -23,6 +23,7 @@ const userOne = {
   _id: new mongoose.Types.ObjectId(),
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
+  phone: '9812345678',
   password,
   role: 'employee',
   isEmailVerified: false,
@@ -32,6 +33,7 @@ const userTwo = {
   _id: new mongoose.Types.ObjectId(),
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
+  phone: '9812345679',
   password,
   role: 'employee',
   isEmailVerified: false,
@@ -42,6 +44,7 @@ const admin = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
+  phone: '9812345670',
   role: 'admin',
   isEmailVerified: false,
 };
@@ -55,7 +58,7 @@ const insertUsers = async (users: Record<string, any>[]) => {
 
 describe('User routes', () => {
   describe('POST /v1/users', () => {
-    let newUser: NewCreatedUser;
+    let newUser: RegisterEmployeePayload;
 
     beforeEach(() => {
       newUser = {
@@ -63,7 +66,7 @@ describe('User routes', () => {
         phone: '9812345678',
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
-        role: 'employee',
+        // role: 'employee',
       };
     });
 
@@ -81,7 +84,7 @@ describe('User routes', () => {
         id: expect.anything(),
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
+        // role: newUser.role,
         isEmailVerified: false,
       });
 
@@ -90,12 +93,12 @@ describe('User routes', () => {
       if (!dbUser) return;
 
       expect(dbUser.password).not.toBe(newUser.password);
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: newUser.role, isEmailVerified: false });
+      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, isEmailVerified: false });
     });
 
     test('should be able to create an admin as well', async () => {
       await insertUsers([admin]);
-      newUser.role = 'admin';
+      // newUser.role = 'admin';
 
       const res = await request(app)
         .post('/v1/users')
