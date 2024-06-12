@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run compile:watch",
+  "buildCommand": "npm run ",
   "outputDirectory": "dist",
   "routes": [
     {
