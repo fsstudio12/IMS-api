@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run compile:watch",
+  "buildCommand": "npm run compile",
   "installCommand": "npm install",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/dist" }]
