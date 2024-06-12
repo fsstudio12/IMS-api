@@ -10,6 +10,7 @@ export const createRecipeHandler = catchAsync(async (req: Request, res: Response
   const businessId = extractBusinessId(req);
 
   const recipe = await recipeService.createRecipe({ ...req.body, businessId });
+
   res.status(httpStatus.CREATED).send(createSuccessResponse({ recipe }));
 });
 
