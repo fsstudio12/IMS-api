@@ -3,5 +3,5 @@
   "buildCommand": "npm run compile",
   "installCommand": "npm install",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/dist/index.js" }]
 }
