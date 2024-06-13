@@ -52,7 +52,10 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-app.get('/', (): void => console.log('wadu'));
+app.get('/', (_req: Request, res: Response): void => {
+  console.log('wadu');
+  res.json('welcome to ims');
+});
 app.use('/v1', routes);
 
 app.use((_req, _res, next) => {
