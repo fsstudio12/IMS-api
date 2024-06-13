@@ -16,7 +16,7 @@ export const paymentSchema = {
   name: Joi.string().optional(),
   amount: Joi.number(),
   method: Joi.string().optional().allow(null),
-  date: Joi.string(),
+  date: Joi.string().optional,
 };
 
 const purchaseItemSchema = {
@@ -38,8 +38,8 @@ export const purchaseBodySchema: Record<keyof INewPurchase, any> = {
   businessId: Joi.optional().custom(objectId),
   vendorId: Joi.custom(objectId).required(),
   payment: Joi.object().keys(paymentSchema).optional(),
-  date: Joi.string().required(),
-  invoiceNumber: Joi.string().required(),
+  date: Joi.string().optional(),
+  invoiceNumber: Joi.string().optional(),
   items: Joi.array().items(Joi.object().keys(purchaseItemSchema)).min(1),
 };
 
@@ -47,8 +47,8 @@ export const updatePurchaseBodySchema: Record<keyof IPurchase, any> = {
   businessId: Joi.optional().custom(objectId),
   vendorId: Joi.custom(objectId).required(),
   paymentInfo: Joi.object().keys(paymentInfoSchema),
-  date: Joi.string().required(),
-  invoiceNumber: Joi.string().required(),
+  date: Joi.string().optional(),
+  invoiceNumber: Joi.string().optional(),
   items: Joi.array().items(Joi.object().keys(purchaseItemSchema)).min(1),
 };
 
