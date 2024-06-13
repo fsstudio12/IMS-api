@@ -44,7 +44,10 @@ app.use((req, _res, next) => {
     }
     next();
 });
-app.get('/', () => console.log('wadu'));
+app.get('/', (_req, res) => {
+    console.log('wadu');
+    res.json('welcome to ims');
+});
 app.use('/v1', v1_1.default);
 app.use((_req, _res, next) => {
     next(new errors_1.ApiError(http_status_1.default.NOT_FOUND, 'Not found'));
