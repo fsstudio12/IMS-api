@@ -3,13 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WageType = exports.PaySchedule = exports.EnrollmentType = exports.SortType = exports.PaymentMethod = exports.PaymentStatus = exports.RegistrationType = exports.CustomerType = exports.Role = exports.QuantityMetric = void 0;
 var QuantityMetric;
 (function (QuantityMetric) {
-    QuantityMetric["GRAM"] = "g";
+    QuantityMetric["GRAM"] = "gm";
     QuantityMetric["KILOGRAM"] = "kg";
     QuantityMetric["MILLILITER"] = "ml";
     QuantityMetric["LITER"] = "l";
     QuantityMetric["PLATE"] = "plate";
     QuantityMetric["HALF_PLATE"] = "half_plate";
     QuantityMetric["EACH"] = "each";
+    QuantityMetric["PIECE"] = "pcs";
+    QuantityMetric["PACKET"] = "pkt";
 })(QuantityMetric = exports.QuantityMetric || (exports.QuantityMetric = {}));
 var Role;
 (function (Role) {

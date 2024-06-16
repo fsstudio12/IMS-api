@@ -63,8 +63,7 @@ const validationForCreateItem = async (itemBody) => {
     if (await item_model_1.default.isNameTaken(itemBody.name, itemBody.businessId))
         throw new errors_1.ApiError(http_status_1.default.BAD_REQUEST, 'Item with the entered name already exists.');
     if ((itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
-        !itemBody.price ||
-        (itemBody === null || itemBody === void 0 ? void 0 : itemBody.price) < 0)
+        (Object.prototype.hasOwnProperty.call(itemBody, 'price') && (itemBody === null || itemBody === void 0 ? void 0 : itemBody.price) != null && itemBody.price < 0))
         throw new errors_1.ApiError(http_status_1.default.BAD_REQUEST, 'Item must have price if it is sellable.');
     if (!itemBody.isSellable && itemBody.price)
         throw new errors_1.ApiError(http_status_1.default.BAD_REQUEST, 'Item cannot have price if it is not sellable.');
@@ -83,9 +82,9 @@ const createItem = async (itemBody) => {
 };
 exports.createItem = createItem;
 const validationForUpdateItemById = async (itemId, itemBody) => {
+    console.log('🚀 ~ itemBody:', itemBody);
     if ((itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
-        !itemBody.price ||
-        (itemBody === null || itemBody === void 0 ? void 0 : itemBody.price) < 0)
+        (Object.prototype.hasOwnProperty.call(itemBody, 'price') && (itemBody === null || itemBody === void 0 ? void 0 : itemBody.price) != null && itemBody.price < 0))
         throw new errors_1.ApiError(http_status_1.default.BAD_REQUEST, 'Item must have price if it is sellable.');
     if (!itemBody.isSellable && itemBody.price)
         throw new errors_1.ApiError(http_status_1.default.BAD_REQUEST, 'Item cannot have price if it is not sellable.');

@@ -19,7 +19,7 @@ const createItemBodySchema: Record<keyof NewItem, any> = {
   name: Joi.string().required(),
   quantity: Joi.number().required(),
   quantityMetric: Joi.string().required(),
-  price: Joi.number().required(),
+  price: Joi.number().optional().allow(null),
   isSellable: Joi.boolean().required(),
   isCombination: Joi.boolean().required(),
   combinationItems: Joi.array().items(Joi.object().keys(requestCombinationItemSchema)).optional(),
@@ -49,6 +49,6 @@ export const updateItemSchema = {
 
 export const deleteItemSchema = {
   query: Joi.object().keys({
-    itemId: Joi.string(),
+    id: Joi.string(),
   }),
 };

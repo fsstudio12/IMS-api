@@ -45,7 +45,7 @@ exports.updateVendorSchema = {
 };
 exports.deleteVendorSchema = {
     query: joi_1.default.object().keys({
-        vendorId: joi_1.default.string(),
+        id: joi_1.default.string(),
     }),
 };
 //# sourceMappingURL=vendor.validation.js.map

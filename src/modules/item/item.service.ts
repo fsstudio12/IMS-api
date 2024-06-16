@@ -81,8 +81,7 @@ const validationForCreateItem = async (itemBody: NewItem): Promise<void> => {
 
   if (
     (itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
-    !itemBody.price ||
-    itemBody?.price < 0
+    (Object.prototype.hasOwnProperty.call(itemBody, 'price') && itemBody?.price != null && itemBody.price < 0)
   )
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
 
@@ -112,10 +111,11 @@ export const validationForUpdateItemById = async (
   itemId: mongoose.Types.ObjectId,
   itemBody: UpdateItem
 ): Promise<IItemDoc> => {
+  console.log('🚀 ~ itemBody:', itemBody);
+
   if (
     (itemBody.isSellable && !Object.prototype.hasOwnProperty.call(itemBody, 'price')) ||
-    !itemBody.price ||
-    itemBody?.price < 0
+    (Object.prototype.hasOwnProperty.call(itemBody, 'price') && itemBody?.price != null && itemBody.price < 0)
   )
     throw new ApiError(httpStatus.BAD_REQUEST, 'Item must have price if it is sellable.');
 

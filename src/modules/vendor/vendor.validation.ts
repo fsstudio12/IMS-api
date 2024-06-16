@@ -46,6 +46,6 @@ export const updateVendorSchema = {
 
 export const deleteVendorSchema = {
   query: Joi.object().keys({
-    vendorId: Joi.string(),
+    id: Joi.string(),
   }),
 };

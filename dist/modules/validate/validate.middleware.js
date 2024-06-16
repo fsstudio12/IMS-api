@@ -10,6 +10,7 @@ const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const validate = (schema) => (req, _res, next) => {
     const validSchema = (0, pick_1.default)(schema, ['params', 'query', 'body']);
     const object = (0, pick_1.default)(req, Object.keys(validSchema));
+    console.log('🚀 ~ object:', object);
     const { value, error } = joi_1.default.compile(validSchema)
         .prefs({ errors: { label: 'key' } })
         .validate(object);

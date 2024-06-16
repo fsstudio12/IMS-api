@@ -59,9 +59,9 @@ exports.updateItemHandler = (0, utils_1.catchAsync)(async (req, res) => {
     }
 });
 exports.deleteItemHandler = (0, utils_1.catchAsync)(async (req, res) => {
-    if (typeof req.query['itemId'] === 'string') {
+    if (typeof req.query['id'] === 'string') {
         const businessId = (0, utils_1.extractBusinessId)(req);
-        await itemService.deleteItemsById(req.query['itemId'], businessId);
+        await itemService.deleteItemsById(req.query['id'], businessId);
         res.send((0, SuccessResponse_1.default)());
     }
 });

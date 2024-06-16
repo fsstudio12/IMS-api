@@ -21,7 +21,7 @@ const createItemBodySchema = {
     name: joi_1.default.string().required(),
     quantity: joi_1.default.number().required(),
     quantityMetric: joi_1.default.string().required(),
-    price: joi_1.default.number().required(),
+    price: joi_1.default.number().optional().allow(null),
     isSellable: joi_1.default.boolean().required(),
     isCombination: joi_1.default.boolean().required(),
     combinationItems: joi_1.default.array().items(joi_1.default.object().keys(exports.requestCombinationItemSchema)).optional(),
@@ -47,7 +47,7 @@ exports.updateItemSchema = {
 };
 exports.deleteItemSchema = {
     query: joi_1.default.object().keys({
-        itemId: joi_1.default.string(),
+        id: joi_1.default.string(),
     }),
 };
 //# sourceMappingURL=item.validation.js.map

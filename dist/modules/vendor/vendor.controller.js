@@ -60,9 +60,9 @@ exports.updateVendorHandler = (0, utils_1.catchAsync)(async (req, res) => {
     }
 });
 exports.deleteVendorHandler = (0, utils_1.catchAsync)(async (req, res) => {
-    if (typeof req.params['vendorId'] === 'string') {
+    if (typeof req.query['id'] === 'string') {
         const businessId = (0, utils_1.extractBusinessId)(req);
-        await vendorService.deleteVendorById(req.params['vendorId'], businessId);
+        await vendorService.deleteVendorsById(req.query['id'], businessId);
         res.send((0, SuccessResponse_1.default)());
     }
 });

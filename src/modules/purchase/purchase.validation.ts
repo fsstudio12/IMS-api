@@ -16,7 +16,7 @@ export const paymentSchema = {
   name: Joi.string().optional(),
   amount: Joi.number(),
   method: Joi.string().optional().allow(null),
-  date: Joi.string().optional,
+  date: Joi.string().optional(),
 };
 
 const purchaseItemSchema = {

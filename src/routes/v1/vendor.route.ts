@@ -8,13 +8,13 @@ const router: Router = express.Router();
 router
   .route('/')
   .get(auth(), vendorController.getVendorsHandler)
-  .post(auth(), validate(vendorValidation.createVendorSchema), vendorController.createVendorHandler);
+  .post(auth(), validate(vendorValidation.createVendorSchema), vendorController.createVendorHandler)
+  .delete(auth(), validate(vendorValidation.deleteVendorSchema), vendorController.deleteVendorHandler);
 
 router
   .route('/:vendorId')
   .get(auth(), validate(vendorValidation.getVendorSchema), vendorController.getVendorHandler)
-  .patch(auth(), validate(vendorValidation.updateVendorSchema), vendorController.updateVendorHandler)
-  .delete(auth(), validate(vendorValidation.deleteVendorSchema), vendorController.deleteVendorHandler);
+  .patch(auth(), validate(vendorValidation.updateVendorSchema), vendorController.updateVendorHandler);
 
 router
   .route('/history/:vendorId')

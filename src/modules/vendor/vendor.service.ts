@@ -36,7 +36,7 @@ export const updateVendorById = async (vendorId: mongoose.Types.ObjectId, vendor
   return vendor;
 };
 
-export const deleteVendorById = async (queryVendorIds: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
+export const deleteVendorsById = async (queryVendorIds: string, businessId?: mongoose.Types.ObjectId): Promise<void> => {
   const vendorIds = splitFromQuery(queryVendorIds).map((vendorId: string) => new mongoose.Types.ObjectId(vendorId));
 
   const matchQuery: FilterQuery<IVendorDoc> = {

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteVendorById = exports.updateVendorById = exports.createVendor = exports.findVendorByFilterQuery = exports.findVendorById = exports.findVendorsByFilterQuery = void 0;
+exports.deleteVendorsById = exports.updateVendorById = exports.createVendor = exports.findVendorByFilterQuery = exports.findVendorById = exports.findVendorsByFilterQuery = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const http_status_1 = __importDefault(require("http-status"));
 const vendor_model_1 = __importDefault(require("./vendor.model"));
@@ -34,7 +34,7 @@ const updateVendorById = async (vendorId, vendorBody) => {
     return vendor;
 };
 exports.updateVendorById = updateVendorById;
-const deleteVendorById = async (queryVendorIds, businessId) => {
+const deleteVendorsById = async (queryVendorIds, businessId) => {
     const vendorIds = (0, common_1.splitFromQuery)(queryVendorIds).map((vendorId) => new mongoose_1.default.Types.ObjectId(vendorId));
     const matchQuery = {
         _id: { $in: vendorIds },
@@ -44,5 +44,5 @@ const deleteVendorById = async (queryVendorIds, businessId) => {
     }
     await vendor_model_1.default.deleteMany(matchQuery);
 };
-exports.deleteVendorById = deleteVendorById;
+exports.deleteVendorsById = deleteVendorsById;
 //# sourceMappingURL=vendor.service.js.map

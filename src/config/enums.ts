@@ -1,11 +1,13 @@
 export enum QuantityMetric {
-  GRAM = 'g',
+  GRAM = 'gm',
   KILOGRAM = 'kg',
   MILLILITER = 'ml',
   LITER = 'l',
   PLATE = 'plate',
   HALF_PLATE = 'half_plate',
   EACH = 'each',
+  PIECE = 'pcs',
+  PACKET = 'pkt',
 }
 
 export enum Role {

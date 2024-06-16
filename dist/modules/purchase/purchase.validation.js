@@ -19,7 +19,7 @@ exports.paymentSchema = {
     name: joi_1.default.string().optional(),
     amount: joi_1.default.number(),
     method: joi_1.default.string().optional().allow(null),
-    date: joi_1.default.string().optional,
+    date: joi_1.default.string().optional(),
 };
 const purchaseItemSchema = Object.assign(Object.assign({}, item_1.itemValidation.requestCombinationItemSchema), { price: joi_1.default.number().required() });
 const paymentInfoSchema = {
